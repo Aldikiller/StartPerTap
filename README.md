@@ -12,6 +12,12 @@ Install the APK on Android 10 or later. Open StartPerTap and use **Lock → PIN*
 
 The signed APK is a preview build. Device testing is ongoing.
 
+## Screenshots from Google Pixel
+
+<img src="docs/StartPerTap-Pixel-Startseite.jpg" alt="StartPerTap home screen with four large tiles" width="230"> <img src="docs/StartPerTap-Pixel-Einstellungen.jpg" alt="StartPerTap settings" width="230"> <img src="docs/StartPerTap-Pixel-Kacheln.jpg" alt="Tile management and accessibility options" width="230">
+
+[About StartPerTap 0.16](docs/StartPerTap-Pixel-Info.jpg)
+
 ## Features
 
 - Up to 36 tiles for apps, contacts and links. Swipe between pages and reorder tiles in the settings.
