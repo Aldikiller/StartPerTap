@@ -111,4 +111,7 @@
     <string name="version">Version %1$s</string>
     <string name="guidebody">1. Tap a tile to open an app, contact or link.\n\n2. Open the lock and enter the PIN to add, edit, color or sort tiles. There are up to 36 tiles, with 16 per page. Swipe left or right to switch pages.\n\n3. In Edit tile, paste a Zoom, WhatsApp call or video link, or choose an app or contact. WhatsApp call links require the other person to join too.\n\n4. The bell toggles quiet mode after Android grants access. In settings you can choose the default launcher or set up screen magnification.\n\n5. Forgot the PIN? Confirm twice and set a new one. Your tiles are kept.</string>
     <string name="aboutbody">StartPerTap is an Android launcher for people with low vision. Large tiles open apps, contacts and links.\n\nThe launcher PIN helps prevent accidental edits. Phone and contact access are used for contact tiles. Quiet mode needs separate Android permission.</string>
+    <string name="media_choose">Choose audio, video or PDF</string>
+    <string name="media_file">File</string>
+    <string name="media_unavailable">File unavailable or no compatible app is installed.</string>
 </resources>
