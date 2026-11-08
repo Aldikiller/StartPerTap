@@ -111,4 +111,7 @@
     <string name="version">Version %1$s</string>
     <string name="guidebody">1. Tippe auf eine Kachel, um eine App, einen Kontakt oder einen Link zu öffnen.\n\n2. Öffne das Schloss und gib die PIN ein, um Kacheln hinzuzufügen, zu bearbeiten, einzufärben oder zu sortieren. Es gibt bis zu 36 Kacheln, davon 16 pro Seite. Wische nach links oder rechts.\n\n3. Unter Kachel bearbeiten kannst du eine App oder einen Kontakt wählen oder einen Zoom-, WhatsApp-Anruf- oder Videolink einfügen. Bei WhatsApp-Anruflinks muss die andere Person ebenfalls beitreten.\n\n4. Die Glocke schaltet nach Android-Freigabe den Ruhemodus. In den Einstellungen kannst du die Standard-Startseite wählen und die Bildschirmvergrößerung einrichten.\n\n5. PIN vergessen? Bestätige zweimal und lege eine neue PIN fest. Deine Kacheln bleiben erhalten.</string>
     <string name="aboutbody">StartPerTap ist ein Android-Launcher für Menschen mit Sehbeeinträchtigung. Große Kacheln öffnen Apps, Kontakte und Links.\n\nDie Launcher-PIN schützt vor versehentlichen Änderungen. Die Berechtigungen für Telefon und Kontakte dienen den Kontaktkacheln. Der Ruhemodus benötigt eine eigene Android-Freigabe.</string>
+    <string name="media_choose">Audio, Video oder PDF auswählen</string>
+    <string name="media_file">Datei</string>
+    <string name="media_unavailable">Datei nicht verfügbar oder keine passende App installiert.</string>
 </resources>
