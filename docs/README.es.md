@@ -6,18 +6,20 @@ Lanzador gratuito para Android con fichas grandes para personas con baja visión
 
 ## Descarga
 
-[StartPerTap 0.16 (APK)](https://github.com/Aldikiller/StartPerTap/releases/download/v0.16/StartPerTap-0.16.apk)
+[StartPerTap 0.17 (APK)](https://github.com/Aldikiller/StartPerTap/releases/download/v0.17/StartPerTap-0.17.apk)
 
 Instala el APK en Android 10 o posterior. Abre StartPerTap y configura tus fichas en **Candado → PIN**. Para cambiar la pantalla de inicio, elige **Elegir StartPerTap por defecto** en los ajustes.
 
-El APK firmado es una versión preliminar. Las pruebas en dispositivos siguen en curso.
 
 ## Funciones
 
 - Hasta 36 fichas para aplicaciones, contactos y enlaces. Desliza para cambiar de página y ordena las fichas en los ajustes.
-- Elige colores y abre reuniones de Zoom, enlaces de llamada de WhatsApp, vídeos o mediatecas.
-- PIN para evitar cambios accidentales. Puedes restablecerlo tras dos confirmaciones.
-- Modo silencio y acceso a los ajustes de ampliación de Android.
+- Personaliza los colores y ordena las fichas entre páginas.
+- Abre reuniones de Zoom, enlaces de llamadas de WhatsApp y sitios web desde las fichas.
+- Abre archivos locales de audio, vídeo y PDF sin conexión mediante una aplicación compatible.
+- Protege la edición con un PIN que puedes restablecer tras dos confirmaciones.
+- Cambia el lanzador predeterminado y abre los ajustes de ampliación de Android.
+- Activa el modo silencio desde la pantalla de inicio tras conceder el permiso de Android.
 
 ## Compilar desde el código fuente
 

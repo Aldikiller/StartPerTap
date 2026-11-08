@@ -6,18 +6,20 @@ Kostenloser Android-Launcher mit großen Kacheln für Menschen mit Sehbeeinträc
 
 ## Download
 
-[StartPerTap 0.16 (APK)](https://github.com/Aldikiller/StartPerTap/releases/download/v0.16/StartPerTap-0.16.apk)
+[StartPerTap 0.17 (APK)](https://github.com/Aldikiller/StartPerTap/releases/download/v0.17/StartPerTap-0.17.apk)
 
 Installiere die APK auf Android 10 oder neuer. Öffne StartPerTap und richte deine Kacheln unter **Schloss → PIN** ein. Wähle in den Einstellungen **StartPerTap als Standard wählen**, um die Android-Startseite zu ersetzen.
 
-Die signierte APK ist eine Vorabversion. Die Gerätetests laufen.
 
 ## Funktionen
 
 - Bis zu 36 Kacheln für Apps, Kontakte und Links. Wische zwischen den Seiten und sortiere die Kacheln in den Einstellungen.
-- Wähle Kachelfarben und öffne Zoom-Meetings, WhatsApp-Anruflinks, Videos oder Mediatheken.
-- PIN-Schutz gegen versehentliche Änderungen. Die PIN lässt sich nach zwei Bestätigungen zurücksetzen.
-- Ruhemodus und Zugang zu den Android-Einstellungen für die Bildschirmvergrößerung.
+- Wähle eigene Kachelfarben und ändere die Reihenfolge über mehrere Seiten hinweg.
+- Öffne Zoom-Meetings, WhatsApp-Anruflinks und Webseiten über Kacheln.
+- Öffne lokal gespeicherte Audio-, Video- und PDF-Dateien offline in einer passenden installierten Android-App.
+- Schütze die Bearbeitung mit einer PIN. Du kannst sie nach zwei Bestätigungen zurücksetzen.
+- Wechsle die Android-Startseite und öffne die Systemeinstellungen für die Bildschirmvergrößerung.
+- Schalte den Ruhemodus nach Android-Freigabe über die Glocke auf der Startseite ein.
 
 ## Aus dem Quellcode bauen
 
