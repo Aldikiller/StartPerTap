@@ -4,6 +4,8 @@
 
 Free Android launcher with large tiles for people with low vision.
 
+[![StartPerTap for Android. Up to 36 customizable tiles, offline media and PIN-protected editing.](docs/StartPerTap-GitHub-Banner.svg)](https://github.com/Aldikiller/StartPerTap/releases/tag/v0.17)
+
 ## Download
 
 [StartPerTap 0.16 (APK)](https://github.com/Aldikiller/StartPerTap/releases/download/v0.16/StartPerTap-0.16.apk)
