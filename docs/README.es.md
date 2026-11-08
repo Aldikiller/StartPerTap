@@ -4,12 +4,26 @@
 
 Lanzador gratuito para Android con fichas grandes para personas con baja visión.
 
+[![StartPerTap](StartPerTap-GitHub-Banner.svg)](https://github.com/Aldikiller/StartPerTap/releases/tag/v0.17)
+
 ## Descarga
 
 [StartPerTap 0.17 (APK)](https://github.com/Aldikiller/StartPerTap/releases/download/v0.17/StartPerTap-0.17.apk)
 
 Instala el APK en Android 10 o posterior. Abre StartPerTap y configura tus fichas en **Candado → PIN**. Para cambiar la pantalla de inicio, elige **Elegir StartPerTap por defecto** en los ajustes.
 
+
+## Vídeos en YouTube
+
+[English](https://youtu.be/7284c3nULzI) · [Deutsch](https://youtu.be/8ppZHYamE14) · [Español](https://youtu.be/V37xc_blXws) · [Français](https://youtu.be/0t8F8R3NWXQ) · [Українська](https://youtu.be/AOm8y0MFCAM)
+
+Los vídeos muestran bocetos. Las imágenes de abajo son capturas reales de la aplicación.
+
+## Capturas de Google Pixel
+
+<img src="StartPerTap-Pixel-Startseite.jpg" alt="Pantalla de inicio con cuatro fichas grandes" width="230"> <img src="StartPerTap-Pixel-Einstellungen.jpg" alt="Ajustes del lanzador" width="230"> <img src="StartPerTap-Pixel-Kacheln.jpg" alt="Gestión de fichas y accesibilidad" width="230">
+
+[Acerca de StartPerTap 0.16](StartPerTap-Pixel-Info.jpg)
 
 ## Funciones
 

@@ -4,12 +4,26 @@
 
 Kostenloser Android-Launcher mit großen Kacheln für Menschen mit Sehbeeinträchtigung.
 
+[![StartPerTap](StartPerTap-GitHub-Banner.svg)](https://github.com/Aldikiller/StartPerTap/releases/tag/v0.17)
+
 ## Download
 
 [StartPerTap 0.17 (APK)](https://github.com/Aldikiller/StartPerTap/releases/download/v0.17/StartPerTap-0.17.apk)
 
 Installiere die APK auf Android 10 oder neuer. Öffne StartPerTap und richte deine Kacheln unter **Schloss → PIN** ein. Wähle in den Einstellungen **StartPerTap als Standard wählen**, um die Android-Startseite zu ersetzen.
 
+
+## YouTube-Videos
+
+[English](https://youtu.be/7284c3nULzI) · [Deutsch](https://youtu.be/8ppZHYamE14) · [Español](https://youtu.be/V37xc_blXws) · [Français](https://youtu.be/0t8F8R3NWXQ) · [Українська](https://youtu.be/AOm8y0MFCAM)
+
+Die Videos zeigen Entwürfe. Die Bilder unten sind echte App-Aufnahmen.
+
+## Screenshots vom Google Pixel
+
+<img src="StartPerTap-Pixel-Startseite.jpg" alt="Startseite mit vier großen Kacheln" width="230"> <img src="StartPerTap-Pixel-Einstellungen.jpg" alt="Launcher-Einstellungen" width="230"> <img src="StartPerTap-Pixel-Kacheln.jpg" alt="Kachelverwaltung und Bedienungshilfen" width="230">
+
+[Über StartPerTap 0.16](StartPerTap-Pixel-Info.jpg)
 
 ## Funktionen
 
