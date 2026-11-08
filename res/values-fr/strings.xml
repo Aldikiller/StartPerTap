@@ -111,4 +111,7 @@
     <string name="version">Version %1$s</string>
     <string name="guidebody">1. Touchez une tuile pour ouvrir une application, un contact ou un lien.\n\n2. Ouvrez le cadenas et saisissez le code PIN pour ajouter, modifier, colorer ou réorganiser les tuiles. Vous pouvez en avoir jusqu’à 36, à raison de 16 par page. Balayez vers la gauche ou la droite pour changer de page.\n\n3. Dans Modifier la tuile, collez un lien Zoom, d’appel WhatsApp ou de vidéo, ou choisissez une application ou un contact. Avec un lien d’appel WhatsApp, l’autre personne doit aussi rejoindre l’appel.\n\n4. La cloche active le mode silencieux après autorisation dans Android. Dans les paramètres, choisissez le lanceur par défaut ou configurez le grossissement.\n\n5. Code PIN oublié ? Confirmez deux fois et définissez un nouveau code. Vos tuiles seront conservées.</string>
     <string name="aboutbody">StartPerTap est un lanceur Android pour les personnes malvoyantes. Ses grandes tuiles ouvrent des applications, des contacts et des liens.\n\nLe code PIN aide à éviter les modifications accidentelles. Les autorisations Téléphone et Contacts servent aux tuiles de contacts. Le mode silencieux nécessite une autorisation Android distincte.</string>
+    <string name="media_choose">Choisir un fichier audio, vidéo ou PDF</string>
+    <string name="media_file">Fichier</string>
+    <string name="media_unavailable">Fichier indisponible ou aucune application compatible installée.</string>
 </resources>
