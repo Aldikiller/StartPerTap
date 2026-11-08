@@ -111,4 +111,7 @@
     <string name="version">Versión %1$s</string>
     <string name="guidebody">1. Toca una ficha para abrir una aplicación, un contacto o un enlace.\n\n2. Abre el candado e introduce el PIN para añadir, editar, colorear u ordenar fichas. Hay hasta 36, con 16 por página. Desliza a izquierda o derecha para cambiar de página.\n\n3. En Editar ficha, pega un enlace de Zoom, de llamada de WhatsApp o de vídeo, o elige una aplicación o un contacto. En los enlaces de llamada de WhatsApp la otra persona también debe unirse.\n\n4. La campana activa el modo silencio tras conceder el permiso en Android. En Ajustes puedes elegir el lanzador predeterminado o configurar la ampliación.\n\n5. Si olvidas el PIN, confirma dos veces y configura uno nuevo. Tus fichas se conservan.</string>
     <string name="aboutbody">StartPerTap es un lanzador de Android para personas con baja visión. Sus fichas grandes abren aplicaciones, contactos y enlaces.\n\nEl PIN ayuda a evitar cambios accidentales. Los permisos de teléfono y contactos se usan para las fichas de contactos. El modo silencio requiere un permiso aparte de Android.</string>
+    <string name="media_choose">Elegir audio, vídeo o PDF</string>
+    <string name="media_file">Archivo</string>
+    <string name="media_unavailable">Archivo no disponible o sin aplicación compatible.</string>
 </resources>
