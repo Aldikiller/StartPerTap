@@ -8,11 +8,10 @@ Free Android launcher with large tiles for people with low vision.
 
 ## Download
 
-[StartPerTap 0.16 (APK)](https://github.com/Aldikiller/StartPerTap/releases/download/v0.16/StartPerTap-0.16.apk)
+[StartPerTap 0.17 (APK)](https://github.com/Aldikiller/StartPerTap/releases/download/v0.17/StartPerTap-0.17.apk)
 
 Install the APK on Android 10 or later. Open StartPerTap and use **Lock → PIN** to configure your tiles. To replace your home screen, choose **Set StartPerTap as default** in the settings.
 
-The signed APK is a preview build. Device testing is ongoing.
 
 ## Watch on YouTube
 
@@ -29,9 +28,12 @@ The videos show concept mockups. The images below are screenshots from the app.
 ## Features
 
 - Up to 36 tiles for apps, contacts and links. Swipe between pages and reorder tiles in the settings.
-- Choose tile colors and open Zoom meetings, WhatsApp call links, videos or media libraries.
-- PIN protection against accidental changes. Reset the PIN after two confirmations.
-- Quiet mode and access to Android screen magnification settings.
+- Customize tile colors and change the order across pages.
+- Open Zoom meetings, WhatsApp call links and websites from tiles.
+- Open files stored on your device offline, including audio, video and PDFs. Android uses a compatible installed app.
+- Use a PIN to prevent accidental edits and reset it after two confirmations.
+- Switch Android’s default launcher and open the system settings for screen magnification.
+- Turn on quiet mode from the home screen after granting Android permission.
 
 ## Build from source
 
