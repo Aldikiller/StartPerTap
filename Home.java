@@ -51,6 +51,10 @@ public final class Home extends Activity {
     private float swipeY;
     private boolean trackingSwipe;
     private String pendingCall;
+    private static final int PICK_MEDIA = 40;
+    private int pendingMediaTile = -1;
+    private String pendingMediaLabel;
+    private int pendingMediaColor;
 
     @Override protected void attachBaseContext(Context base) {
         String tag = base.getSharedPreferences("launcher", MODE_PRIVATE).getString("language", "");
@@ -326,7 +330,8 @@ public final class Home extends Activity {
             int iconSize = dp(columns == 1 ? 88 : 64);
             face.addView(image, new LinearLayout.LayoutParams(iconSize, iconSize));
         } else {
-            String glyph = tile.optString("url").isEmpty() ? "＋" : "▶";
+            String glyph = tile.optString("url").isEmpty() && tile.optString("file").isEmpty() ? "＋" : "▶";
+            if ("application/pdf".equals(tile.optString("fileType"))) glyph = "PDF";
             if (!tile.optString("phone").isEmpty()) glyph = "☎";
             TextView symbol = text(glyph, columns == 1 ? 72 : 54);
             symbol.setTextColor(ink);
@@ -356,6 +361,13 @@ public final class Home extends Activity {
     }
 
     private void launchTile(JSONObject tile) {
+        String file = tile.optString("file");
+        if (!file.isEmpty()) {
+            Intent view = new Intent(Intent.ACTION_VIEW).setDataAndType(Uri.parse(file), tile.optString("fileType"))
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            open(view, getString(R.string.media_unavailable));
+            return;
+        }
         String phone = tile.optString("phone");
         if (!phone.isEmpty()) {
             if (checkSelfPermission(android.Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
@@ -386,6 +398,54 @@ public final class Home extends Activity {
         } else {
             notice(getString(R.string.ui_diese_kachel_ist_frei_zum_belegen_bitte_das_schl_10));
         }
+    }
+
+    private void pickMedia(int index, String label, int color) {
+        Intent picker = new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE)
+            .setType("*/*").putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"audio/*", "video/*", "application/pdf"});
+        try {
+            startActivityForResult(picker, PICK_MEDIA);
+            pendingMediaTile = index;
+            pendingMediaLabel = label;
+            pendingMediaColor = color;
+        } catch (ActivityNotFoundException e) {
+            notice(getString(R.string.media_unavailable));
+        }
+    }
+
+    @Override protected void onActivityResult(int request, int result, Intent data) {
+        super.onActivityResult(request, result, data);
+        if (request != PICK_MEDIA) return;
+        int index = pendingMediaTile;
+        pendingMediaTile = -1;
+        if (result != RESULT_OK || data == null || index < 0 || index > tiles.length()
+            || index >= MAX_TILES) return;
+        Uri uri = data.getData();
+        if (uri == null || !"content".equals(uri.getScheme())) return;
+        String type;
+        try {
+            type = getContentResolver().getType(uri);
+            if (type == null || !(type.startsWith("audio/") || type.startsWith("video/")
+                || type.equals("application/pdf"))) {
+                notice(getString(R.string.media_unavailable));
+                return;
+            }
+            getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        } catch (SecurityException | IllegalArgumentException e) {
+            notice(getString(R.string.media_unavailable));
+            return;
+        }
+        String label = pendingMediaLabel.isEmpty() ? getString(R.string.media_file) : pendingMediaLabel;
+        JSONObject selected = tile(label, "", "", pendingMediaColor);
+        try {
+            selected.put("file", uri.toString());
+            selected.put("fileType", type);
+        } catch (JSONException e) {
+            throw new IllegalStateException(e);
+        }
+        putTile(index, selected);
+        persistTiles();
+        showHome();
     }
 
     private static String whatsappLinkNumber(String url) {
@@ -988,8 +1048,21 @@ public final class Home extends Activity {
     }
 
     private void saveTiles() {
-        prefs.edit().putString("tiles", tiles.toString()).apply();
+        persistTiles();
         showAdmin();
+    }
+
+    private void persistTiles() {
+        prefs.edit().putString("tiles", tiles.toString()).apply();
+        Set<String> retained = new HashSet<>();
+        for (int i = 0; i < tiles.length(); i++) retained.add(tiles.optJSONObject(i).optString("file"));
+        for (UriPermission grant : getContentResolver().getPersistedUriPermissions()) {
+            if (grant.isReadPermission() && !retained.contains(grant.getUri().toString())) {
+                try {
+                    getContentResolver().releasePersistableUriPermission(grant.getUri(), Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                } catch (SecurityException ignored) { }
+            }
+        }
     }
 
     private void editTile(int index) {
@@ -1047,6 +1120,16 @@ public final class Home extends Activity {
         });
         fields.addView(name);
         fields.addView(select);
+        fields.addView(button(getString(R.string.media_choose), () -> {
+            int chosenColor;
+            try {
+                chosenColor = parseColor(color.getText().toString());
+            } catch (IllegalArgumentException e) {
+                color.setError(getString(R.string.ui_beispiel_1558ca_98));
+                return;
+            }
+            pickMedia(index, name.getText().toString().trim(), chosenColor);
+        }));
         fields.addView(button(getString(R.string.ui_whatsapp_anruflink_einfugen_85),
             () -> editMeetingLink(true, name, link, phone, editor[0])));
         fields.addView(button(getString(R.string.ui_zoom_meeting_einfugen_86),
@@ -1120,6 +1203,10 @@ public final class Home extends Activity {
             }
             JSONObject updated = tile(label, url.isEmpty() && number.isEmpty() ? app[0] : "", url, value);
             try {
+                if (url.isEmpty() && number.isEmpty() && app[0].isEmpty() && original.has("file")) {
+                    updated.put("file", original.optString("file"));
+                    updated.put("fileType", original.optString("fileType"));
+                }
                 updated.put("phone", number);
                 updated.put("whatsappCall", direct.isChecked() && !whatsappLinkNumber(url).isEmpty());
             } catch (JSONException e) {
