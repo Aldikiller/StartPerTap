@@ -4,7 +4,7 @@
 
 Безкоштовний лаунчер Android із великими плитками для людей зі слабким зором.
 
-[![StartPerTap](StartPerTap-GitHub-Banner.svg)](https://github.com/Aldikiller/StartPerTap/releases/tag/v0.17)
+[![StartPerTap](StartPerTap-GitHub-Banner-uk.svg)](https://github.com/Aldikiller/StartPerTap/releases/tag/v0.17)
 
 ## Завантаження
 

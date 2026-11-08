@@ -4,7 +4,7 @@
 
 Kostenloser Android-Launcher mit großen Kacheln für Menschen mit Sehbeeinträchtigung.
 
-[![StartPerTap](StartPerTap-GitHub-Banner.svg)](https://github.com/Aldikiller/StartPerTap/releases/tag/v0.17)
+[![StartPerTap](StartPerTap-GitHub-Banner-de.svg)](https://github.com/Aldikiller/StartPerTap/releases/tag/v0.17)
 
 ## Download
 

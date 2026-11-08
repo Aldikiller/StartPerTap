@@ -4,7 +4,7 @@
 
 Lanceur Android gratuit avec de grandes tuiles pour les personnes malvoyantes.
 
-[![StartPerTap](StartPerTap-GitHub-Banner.svg)](https://github.com/Aldikiller/StartPerTap/releases/tag/v0.17)
+[![StartPerTap](StartPerTap-GitHub-Banner-fr.svg)](https://github.com/Aldikiller/StartPerTap/releases/tag/v0.17)
 
 ## Téléchargement
 

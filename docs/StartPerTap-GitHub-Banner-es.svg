@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="580" viewBox="0 0 1200 580" role="img" aria-labelledby="title">
+  <title id="title">StartPerTap. Mosaicos grandes para Android. Para móviles y tabletas, diseñado para personas con baja visión.</title>
+  <rect width="1200" height="580" rx="24" fill="#F5F1FC"/>
+  <path d="M0 0h14v580H0z" fill="#5426A8"/>
+  <g transform="translate(46,-14) scale(.65)">
+  <circle cx="165" cy="150" r="100" fill="#5426A8"/>
+  <rect x="108" y="94" width="92" height="92" rx="23" fill="none" stroke="#E8DCFF" stroke-width="8"/>
+  <path d="M155 130v-19m-15 24-13-9m45 8 12-10" fill="none" stroke="#E8DCFF" stroke-width="5" stroke-linecap="round"/>
+  <path d="M151 137l65 54-27 2-12 23z" fill="#FFF" stroke="#5426A8" stroke-width="5" stroke-linejoin="round"/>
+  <text x="302" y="183" fill="#241637" font-family="Segoe UI, Arial, sans-serif" font-size="103" font-weight="700" letter-spacing="-3">StartPer<tspan fill="#5426A8">Tap</tspan></text>
+  </g>
+  <g font-family="Segoe UI, Arial, sans-serif" fill="#241637">
+    <text x="72" y="220" font-size="45" font-weight="700">Mosaicos grandes para Android</text>
+    <text x="74" y="264" font-size="27">Para móviles y tabletas, diseñado para personas con baja visión.</text>
+    <g font-size="25" font-weight="600">
+      <text x="74" y="327">• Hasta 36 mosaicos de colores personalizables</text>
+      <text x="634" y="327">• Abre apps, contactos y enlaces</text>
+      <text x="74" y="373">• Audio, vídeo y PDF sin conexión</text>
+      <text x="634" y="373">• Edición con PIN y modo silencio</text>
+    </g>
+    <rect x="72" y="415" width="1056" height="72" rx="15" fill="#5426A8"/>
+    <text x="100" y="462" font-size="30" font-weight="700" fill="#FFFFFF">github.com/Aldikiller/StartPerTap</text>
+    <text x="74" y="539" font-size="25" fill="#4D3B60">Gratis y de código abierto · Android 10+ · 5 idiomas</text>
+  </g>
+</svg>

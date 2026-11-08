@@ -4,7 +4,7 @@
 
 Lanzador gratuito para Android con fichas grandes para personas con baja visión.
 
-[![StartPerTap](StartPerTap-GitHub-Banner.svg)](https://github.com/Aldikiller/StartPerTap/releases/tag/v0.17)
+[![StartPerTap](StartPerTap-GitHub-Banner-es.svg)](https://github.com/Aldikiller/StartPerTap/releases/tag/v0.17)
 
 ## Descarga
 
