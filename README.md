@@ -12,6 +12,12 @@ Install the APK on Android 10 or later. Open StartPerTap and use **Lock → PIN*
 
 The signed APK is a preview build. Device testing is ongoing.
 
+## Watch on YouTube
+
+[English](https://youtu.be/7284c3nULzI) · [Deutsch](https://youtu.be/8ppZHYamE14) · [Español](https://youtu.be/V37xc_blXws) · [Français](https://youtu.be/0t8F8R3NWXQ) · [Українська](https://youtu.be/AOm8y0MFCAM)
+
+The videos show concept mockups. The images below are screenshots from the app.
+
 ## Screenshots from Google Pixel
 
 <img src="docs/StartPerTap-Pixel-Startseite.jpg" alt="StartPerTap home screen with four large tiles" width="230"> <img src="docs/StartPerTap-Pixel-Einstellungen.jpg" alt="StartPerTap settings" width="230"> <img src="docs/StartPerTap-Pixel-Kacheln.jpg" alt="Tile management and accessibility options" width="230">
