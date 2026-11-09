@@ -1,0 +1,9 @@
+<resources>
+    <string name="appearance">Appearance</string>
+    <string name="light_appearance">Light background</string>
+    <string name="corner_radius_name">Corner rounding</string>
+    <string name="corner_radius">Corner rounding (%1$d dp)</string>
+    <string name="emergency_test">Test emergency information</string>
+    <string name="emergency_test_steps">Turn on airplane mode and turn off Wi-Fi for the offline test. Check the address and numbers. Open the PDF and check that it can be read. Tapping a number opens the dialer.</string>
+    <string name="changes_023">Added a light background, adjustable corner rounding and an emergency information test.</string>
+</resources>

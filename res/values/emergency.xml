@@ -1,0 +1,14 @@
+<resources>
+    <string name="emergency">Emergency</string>
+    <string name="emergency_setup">Set up emergency contacts</string>
+    <string name="emergency_address">Address</string>
+    <string name="emergency_name">Contact %1$d: name</string>
+    <string name="emergency_phone">Contact %1$d: phone number</string>
+    <string name="emergency_pick_pdf">Choose signed advance directive (PDF)</string>
+    <string name="emergency_open_pdf">Open advance directive (PDF)</string>
+    <string name="emergency_remove_pdf">Remove PDF link</string>
+    <string name="emergency_empty">No address saved</string>
+    <string name="emergency_unavailable">Could not open or link this item.</string>
+    <string name="emergency_at_start">Show emergency information at startup</string>
+    <string name="emergency_go_home">Go to home screen</string>
+</resources>

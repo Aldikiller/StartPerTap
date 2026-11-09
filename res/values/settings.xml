@@ -1,0 +1,15 @@
+<resources>
+    <string name="settings_home">Home and tiles</string>
+    <string name="settings_system">System and accessibility</string>
+    <string name="changelog">Version history</string>
+    <string name="changes_021">Settings grouped by topic. Quick guide and version history now live under About StartPerTap.</string>
+    <string name="changes_020">Ambulance icon without a label. Optional emergency information closes after four seconds.</string>
+    <string name="changes_019">Added an optional emergency screen at startup. It can be enabled in PIN-protected settings.</string>
+    <string name="changes_018">Added the emergency window with an address, up to three contacts and a link to a signed advance directive PDF. Tapping a contact opens the dialer.</string>
+    <string name="changes_017">Documented release with up to 36 customizable tiles, offline media and PIN-protected editing.</string>
+    <string name="emergency_red_background">Red background for the emergency icon</string>
+    <string name="changes_022">The emergency icon has a transparent background by default. A red background can be enabled in settings.</string>
+    <string name="section_expanded">Expanded</string>
+    <string name="section_collapsed">Collapsed</string>
+    <string name="changes_024">Settings sections start collapsed and use distinct pastel colors and rounded buttons.</string>
+</resources>
