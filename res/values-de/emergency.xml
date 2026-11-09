@@ -1,0 +1,14 @@
+<resources>
+    <string name="emergency">Notfall</string>
+    <string name="emergency_setup">Notfallkontakte einrichten</string>
+    <string name="emergency_address">Adresse</string>
+    <string name="emergency_name">Kontakt %1$d: Name</string>
+    <string name="emergency_phone">Kontakt %1$d: Telefonnummer</string>
+    <string name="emergency_pick_pdf">Unterschriebene Patientenverfügung auswählen (PDF)</string>
+    <string name="emergency_open_pdf">Patientenverfügung öffnen (PDF)</string>
+    <string name="emergency_remove_pdf">PDF-Verknüpfung entfernen</string>
+    <string name="emergency_empty">Keine Adresse hinterlegt</string>
+    <string name="emergency_unavailable">Der Eintrag konnte nicht geöffnet oder verknüpft werden.</string>
+    <string name="emergency_at_start">Notfallinfos beim Start anzeigen</string>
+    <string name="emergency_go_home">Zur Startseite</string>
+</resources>

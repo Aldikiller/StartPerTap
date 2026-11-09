@@ -1,0 +1,9 @@
+<resources>
+    <string name="appearance">Darstellung</string>
+    <string name="light_appearance">Heller Hintergrund</string>
+    <string name="corner_radius_name">Eckenrundung</string>
+    <string name="corner_radius">Eckenrundung (%1$d dp)</string>
+    <string name="emergency_test">Notfallinfos testen</string>
+    <string name="emergency_test_steps">Schalte für den Offline-Test den Flugmodus ein und WLAN aus. Prüfe Adresse und Telefonnummern. Öffne die PDF und prüfe, ob sie lesbar ist. Ein Tipp auf eine Nummer öffnet die Telefon-App.</string>
+    <string name="changes_023">Heller Hintergrund, einstellbare Eckenrundung und eine Testansicht für die Notfallinfos.</string>
+</resources>

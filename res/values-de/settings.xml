@@ -1,0 +1,15 @@
+<resources>
+    <string name="settings_home">Startseite und Kacheln</string>
+    <string name="settings_system">System und Bedienungshilfen</string>
+    <string name="changelog">Versionsverlauf</string>
+    <string name="changes_021">Die Einstellungen sind nach Themen gruppiert. Kurzanleitung und Versionsverlauf findest du unter Über StartPerTap.</string>
+    <string name="changes_020">Der Notfallbutton zeigt nur noch den Krankenwagen. Die optionale Notfallansicht blendet sich nach vier Sekunden aus.</string>
+    <string name="changes_019">Eine optionale Notfallansicht beim Start ist in den PIN-geschützten Einstellungen einschaltbar.</string>
+    <string name="changes_018">Neues Notfallfenster mit Adresse, bis zu drei Kontakten und einem Link zur unterschriebenen Patientenverfügung als PDF. Ein Tipp auf einen Kontakt öffnet die Telefon-App.</string>
+    <string name="changes_017">Dokumentierter Stand mit bis zu 36 anpassbaren Kacheln, Offline-Medien und PIN-geschützter Bearbeitung.</string>
+    <string name="emergency_red_background">Roter Hintergrund für das Notfallsymbol</string>
+    <string name="changes_022">Das Notfallsymbol hat standardmäßig einen transparenten Hintergrund. Der rote Hintergrund lässt sich in den Einstellungen einschalten.</string>
+    <string name="section_expanded">Aufgeklappt</string>
+    <string name="section_collapsed">Zugeklappt</string>
+    <string name="changes_024">Die drei Einstellungsbereiche starten zugeklappt und haben unterschiedliche Pastellfarben und gerundete Buttons.</string>
+</resources>
