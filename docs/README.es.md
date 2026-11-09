@@ -4,14 +4,24 @@
 
 Lanzador gratuito para Android con fichas grandes para personas con baja visión.
 
-[![StartPerTap](StartPerTap-GitHub-Banner-es.svg)](https://github.com/Aldikiller/StartPerTap/releases/tag/v0.17)
+[![StartPerTap](StartPerTap-GitHub-Banner-es.svg)](https://github.com/Aldikiller/StartPerTap/releases/tag/v0.24)
 
 ## Descarga
 
-[StartPerTap 0.17 (APK)](https://github.com/Aldikiller/StartPerTap/releases/download/v0.17/StartPerTap-0.17.apk)
+[StartPerTap 0.24 (APK)](https://github.com/Aldikiller/StartPerTap/releases/download/v0.24/StartPerTap-0.24.apk)
 
 Instala el APK en Android 10 o posterior. Abre StartPerTap y configura tus fichas en **Candado → PIN**. Para cambiar la pantalla de inicio, elige **Elegir StartPerTap por defecto** en los ajustes.
 
+
+## Novedades de 0.24
+
+Las secciones de inicio y mosaicos, sistema y accesibilidad y emergencias aparecen plegadas. Cada una tiene un color pastel distinto y botones redondeados.
+
+## Datos de emergencia
+
+El icono de ambulancia muestra la dirección, hasta tres contactos y un enlace al PDF firmado de instrucciones previas. Al tocar un contacto se abre el marcador. La vista de inicio opcional se cierra tras cuatro segundos.
+
+En **Emergencia**, prueba la dirección, los números y el PDF con el modo avión activo y el Wi-Fi apagado. En **Apariencia**, elige el fondo claro u oscuro y ajusta el redondeo.
 
 ## Vídeos en YouTube
 

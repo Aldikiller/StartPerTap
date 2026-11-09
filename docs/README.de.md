@@ -4,14 +4,24 @@
 
 Kostenloser Android-Launcher mit großen Kacheln für Menschen mit Sehbeeinträchtigung.
 
-[![StartPerTap](StartPerTap-GitHub-Banner-de.svg)](https://github.com/Aldikiller/StartPerTap/releases/tag/v0.17)
+[![StartPerTap](StartPerTap-GitHub-Banner-de.svg)](https://github.com/Aldikiller/StartPerTap/releases/tag/v0.24)
 
 ## Download
 
-[StartPerTap 0.17 (APK)](https://github.com/Aldikiller/StartPerTap/releases/download/v0.17/StartPerTap-0.17.apk)
+[StartPerTap 0.24 (APK)](https://github.com/Aldikiller/StartPerTap/releases/download/v0.24/StartPerTap-0.24.apk)
 
 Installiere die APK auf Android 10 oder neuer. Öffne StartPerTap und richte deine Kacheln unter **Schloss → PIN** ein. Wähle in den Einstellungen **StartPerTap als Standard wählen**, um die Android-Startseite zu ersetzen.
 
+
+## Neu in 0.24
+
+Startseite und Kacheln, System und Bedienungshilfen sowie Notfall starten zugeklappt. Jeder Bereich hat eine eigene Pastellfarbe und abgerundete Buttons.
+
+## Notfallinfos
+
+Das Krankenwagen-Symbol öffnet die Adresse, bis zu drei Kontakte und den Link zur unterschriebenen Patientenverfügung als PDF. Ein Tipp auf einen Kontakt öffnet die Telefon-App. Die optionale Startansicht schließt nach vier Sekunden.
+
+Unter **Notfall → Notfallinfos testen** kannst du Adresse, Nummern und PDF im Flugmodus mit ausgeschaltetem WLAN prüfen. Unter **Darstellung** stellst du hellen oder dunklen Hintergrund und die Eckenrundung ein.
 
 ## YouTube-Videos
 

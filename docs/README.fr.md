@@ -4,14 +4,24 @@
 
 Lanceur Android gratuit avec de grandes tuiles pour les personnes malvoyantes.
 
-[![StartPerTap](StartPerTap-GitHub-Banner-fr.svg)](https://github.com/Aldikiller/StartPerTap/releases/tag/v0.17)
+[![StartPerTap](StartPerTap-GitHub-Banner-fr.svg)](https://github.com/Aldikiller/StartPerTap/releases/tag/v0.24)
 
 ## Téléchargement
 
-[StartPerTap 0.17 (APK)](https://github.com/Aldikiller/StartPerTap/releases/download/v0.17/StartPerTap-0.17.apk)
+[StartPerTap 0.24 (APK)](https://github.com/Aldikiller/StartPerTap/releases/download/v0.24/StartPerTap-0.24.apk)
 
 Installez l’APK sur Android 10 ou une version ultérieure. Ouvrez StartPerTap et configurez vos tuiles via **Cadenas → Code PIN**. Dans les paramètres, choisissez **Choisir StartPerTap par défaut** pour changer d’écran d’accueil.
 
+
+## Nouveautés de la version 0.24
+
+Les rubriques accueil et tuiles, système et accessibilité et urgence sont repliées au départ. Chacune a une couleur pastel distincte et des boutons arrondis.
+
+## Informations d’urgence
+
+L’icône ambulance affiche l’adresse, jusqu’à trois contacts et un lien vers les directives anticipées signées en PDF. Toucher un contact ouvre le clavier téléphonique. La vue facultative au démarrage se ferme après quatre secondes.
+
+Dans **Urgence**, testez l’adresse, les numéros et le PDF en mode avion avec le Wi-Fi désactivé. Dans **Apparence**, choisissez un fond clair ou sombre et réglez l’arrondi.
 
 ## Vidéos sur YouTube
 
