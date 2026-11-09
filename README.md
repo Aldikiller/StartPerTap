@@ -4,14 +4,24 @@
 
 Free Android launcher with large tiles for people with low vision.
 
-[![StartPerTap for Android. Up to 36 customizable tiles, offline media and PIN-protected editing.](docs/StartPerTap-GitHub-Banner.svg)](https://github.com/Aldikiller/StartPerTap/releases/tag/v0.17)
+[![StartPerTap for Android. Up to 36 customizable tiles, offline media and PIN-protected editing.](docs/StartPerTap-GitHub-Banner.svg)](https://github.com/Aldikiller/StartPerTap/releases/tag/v0.24)
 
 ## Download
 
-[StartPerTap 0.17 (APK)](https://github.com/Aldikiller/StartPerTap/releases/download/v0.17/StartPerTap-0.17.apk)
+[StartPerTap 0.24 (APK)](https://github.com/Aldikiller/StartPerTap/releases/download/v0.24/StartPerTap-0.24.apk)
 
 Install the APK on Android 10 or later. Open StartPerTap and use **Lock → PIN** to configure your tiles. To replace your home screen, choose **Set StartPerTap as default** in the settings.
 
+
+## What’s new in 0.24
+
+Settings sections for home and tiles, system and accessibility, and emergencies start collapsed. Each has its own pastel color and rounded buttons.
+
+## Emergency information
+
+The ambulance icon opens the address, up to three contacts, and a link to a signed advance directive PDF. A contact opens the dialer. The optional startup view closes after four seconds.
+
+Under Emergency, use **Test emergency information** to check the address, numbers and PDF with airplane mode on and Wi-Fi off. Under Appearance, choose a light or dark background and adjust the corner rounding.
 
 ## Watch on YouTube
 

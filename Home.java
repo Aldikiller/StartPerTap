@@ -67,8 +67,9 @@ public final class Home extends Activity {
     }
 
     @Override public void onCreate(Bundle state) {
-        super.onCreate(state);
         prefs = getSharedPreferences("launcher", MODE_PRIVATE);
+        if (lightAppearance()) setTheme(android.R.style.Theme_Material_Light_NoActionBar);
+        super.onCreate(state);
         notifications = getSystemService(NotificationManager.class);
         try {
             tiles = new JSONArray(prefs.getString("tiles", "[]"));
@@ -80,12 +81,12 @@ public final class Home extends Activity {
             tiles.put(tile("App 1", "", "", BLUE));
             tiles.put(tile("App 2", "", "", 0xff7222a0));
         }
-        showHome();
+        showLaunchScreen();
     }
 
     @Override protected void onResume() {
         super.onResume();
-        if (!admin && active == null) showHome();
+        if (!admin && active == null && !emergencyStartVisible) showHome();
     }
 
     @Override protected void onStop() {
@@ -99,11 +100,13 @@ public final class Home extends Activity {
         super.onNewIntent(intent);
         admin = false;
         if (active != null) active.dismiss();
-        showHome();
+        showLaunchScreen();
     }
 
     @Override public void onBackPressed() {
-        if (sorting) showAdmin();
+        if (emergencyStartVisible) showHome();
+        else if (sorting) showTileSettings();
+        else if (admin && tileSettingsVisible) showAdmin();
         else if (admin) showHome();
     }
 
@@ -147,10 +150,22 @@ public final class Home extends Activity {
         return Math.round(size * getResources().getDisplayMetrics().density);
     }
 
+    private boolean lightAppearance() {
+        return prefs.getBoolean("light_appearance", false);
+    }
+
+    private int foreground() {
+        return lightAppearance() ? BLACK : WHITE;
+    }
+
+    private int background() {
+        return lightAppearance() ? WHITE : BLACK;
+    }
+
     private GradientDrawable rounded(int color) {
         GradientDrawable shape = new GradientDrawable();
         shape.setColor(color);
-        shape.setCornerRadius(dp(14));
+        shape.setCornerRadius(dp(prefs.getInt("corner_radius", 14)));
         return shape;
     }
 
@@ -162,7 +177,7 @@ public final class Home extends Activity {
 
     private void page() {
         root = column();
-        root.setBackgroundColor(BLACK);
+        root.setBackgroundColor(background());
         root.setPadding(dp(12), dp(8), dp(12), dp(8));
         if (Build.VERSION.SDK_INT >= 30) {
             root.setOnApplyWindowInsetsListener((view, insets) -> {
@@ -190,11 +205,153 @@ public final class Home extends Activity {
         TextView view = new TextView(this);
         view.setText(value);
         view.setTextSize(sp);
-        view.setTextColor(WHITE);
+        view.setTextColor(foreground());
         return view;
     }
 
+    private static final int PICK_EMERGENCY_PDF = 41;
+    private static final int EMERGENCY_CONTACTS = 3;
+
+    private ImageButton emergencyButton() {
+        ImageButton control = new ImageButton(this);
+        control.setLayoutParams(new LinearLayout.LayoutParams(dp(56), dp(56)));
+        control.setImageResource(R.drawable.emergency_ambulance);
+        if (prefs.getBoolean("emergency_red_background", false)) {
+            control.setBackground(rounded(0xffa92530));
+        } else {
+            control.setColorFilter(foreground());
+            control.setBackground(new RippleDrawable(
+                android.content.res.ColorStateList.valueOf(lightAppearance() ? 0x44000000 : 0x44ffffff), null, rounded(WHITE)));
+        }
+        control.setContentDescription(getString(R.string.emergency));
+        control.setTooltipText(getString(R.string.emergency));
+        control.setOnClickListener(view -> showEmergency());
+        return control;
+    }
+
+    private LinearLayout emergencyContent() {
+        LinearLayout content = column();
+        content.setPadding(dp(20), dp(8), dp(20), dp(8));
+        return content;
+    }
+
+    private ScrollView emergencyScroll(LinearLayout content) {
+        ScrollView scroll = new ScrollView(this);
+        scroll.addView(content);
+        return scroll;
+    }
+
+    private boolean emergencyStartVisible;
+
+    private void showLaunchScreen() {
+        if (!prefs.getBoolean("emergency_at_start", false)) {
+            showHome();
+            return;
+        }
+        emergencyStartVisible = true;
+        page();
+        root.addView(text(getString(R.string.emergency), 28));
+        root.addView(emergencyScroll(emergencyDetails()), new LinearLayout.LayoutParams(-1, 0, 1));
+        root.addView(button(getString(R.string.emergency_go_home), this::showHome));
+        LinearLayout launchView = root;
+        launchView.postDelayed(() -> {
+            if (emergencyStartVisible && root == launchView && !isDestroyed()) showHome();
+        }, 4000L);
+    }
+
+    private LinearLayout emergencyDetails() {
+        LinearLayout content = emergencyContent();
+        String address = prefs.getString("emergency_address", "");
+        TextView addressView = new TextView(this);
+        addressView.setTextSize(22);
+        addressView.setTextColor(foreground());
+        addressView.setText(address.isEmpty() ? getString(R.string.emergency_empty) : address);
+        addressView.setTextIsSelectable(!address.isEmpty());
+        content.addView(addressView);
+        for (int i = 0; i < EMERGENCY_CONTACTS; i++) {
+            String phone = prefs.getString("emergency_phone_" + i, "");
+            if (phone.isEmpty()) continue;
+            String name = prefs.getString("emergency_name_" + i, "");
+            content.addView(button(name.isEmpty() ? phone : name + "\n" + phone, () ->
+                open(new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null)),
+                    getString(R.string.emergency_unavailable))));
+        }
+        String pdf = prefs.getString("emergency_pdf", "");
+        if (!pdf.isEmpty()) {
+            content.addView(button(getString(R.string.emergency_open_pdf), () ->
+                open(new Intent(Intent.ACTION_VIEW)
+                    .setDataAndType(Uri.parse(pdf), "application/pdf")
+                    .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION),
+                    getString(R.string.emergency_unavailable))));
+        }
+        return content;
+    }
+
+    private void showEmergency() {
+        dialog(new AlertDialog.Builder(this).setTitle(R.string.emergency)
+            .setView(emergencyScroll(emergencyDetails())).setPositiveButton(android.R.string.ok, null).create());
+    }
+
+    private void editEmergency() {
+        LinearLayout content = emergencyContent();
+        EditText address = field(getString(R.string.emergency_address),
+            InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_POSTAL_ADDRESS
+                | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+        address.setSingleLine(false);
+        address.setText(prefs.getString("emergency_address", ""));
+        content.addView(address);
+        EditText[] names = new EditText[EMERGENCY_CONTACTS];
+        EditText[] phones = new EditText[EMERGENCY_CONTACTS];
+        for (int i = 0; i < EMERGENCY_CONTACTS; i++) {
+            names[i] = field(getString(R.string.emergency_name, i + 1), InputType.TYPE_CLASS_TEXT);
+            phones[i] = field(getString(R.string.emergency_phone, i + 1), InputType.TYPE_CLASS_PHONE);
+            names[i].setText(prefs.getString("emergency_name_" + i, ""));
+            phones[i].setText(prefs.getString("emergency_phone_" + i, ""));
+            content.addView(names[i]);
+            content.addView(phones[i]);
+        }
+        dialog(new AlertDialog.Builder(this).setTitle(R.string.emergency_setup)
+            .setView(emergencyScroll(content))
+            .setNegativeButton(android.R.string.cancel, null)
+            .setPositiveButton(android.R.string.ok, (d, which) -> {
+                SharedPreferences.Editor edit = prefs.edit()
+                    .putString("emergency_address", address.getText().toString().trim());
+                for (int i = 0; i < EMERGENCY_CONTACTS; i++) {
+                    edit.putString("emergency_name_" + i, names[i].getText().toString().trim());
+                    edit.putString("emergency_phone_" + i, phones[i].getText().toString().trim());
+                }
+                edit.apply();
+            }).create());
+    }
+
+    private void pickEmergencyPdf() {
+        Intent picker = new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE)
+            .setType("application/pdf").putExtra(Intent.EXTRA_LOCAL_ONLY, true)
+            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+        try {
+            startActivityForResult(picker, PICK_EMERGENCY_PDF);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this, R.string.emergency_unavailable, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void saveEmergencyPdf(Intent data) {
+        Uri uri = data == null ? null : data.getData();
+        if (uri == null || !"content".equals(uri.getScheme())) return;
+        try {
+            if (!"application/pdf".equals(getContentResolver().getType(uri))) {
+                throw new IllegalArgumentException();
+            }
+            getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            prefs.edit().putString("emergency_pdf", uri.toString()).apply();
+            if (admin) showAdmin();
+        } catch (IllegalArgumentException | SecurityException e) {
+            Toast.makeText(this, R.string.emergency_unavailable, Toast.LENGTH_LONG).show();
+        }
+    }
+
     private void showHome() {
+        emergencyStartVisible = false;
         admin = false;
         sorting = false;
         homePage = Math.min(homePage, pageCount() - 1);
@@ -205,6 +362,7 @@ public final class Home extends Activity {
         boolean quiet = filter != NotificationManager.INTERRUPTION_FILTER_ALL
             && filter != NotificationManager.INTERRUPTION_FILTER_UNKNOWN;
         header.addView(iconButton(false, quiet, quiet ? getString(R.string.ui_ruhemodus_aktiv_0) : getString(R.string.ui_ruhemodus_aus_1), this::toggleQuiet));
+        header.addView(emergencyButton());
         header.addView(iconButton(true, false, getString(R.string.ui_einstellungen_2), this::askPin));
         root.addView(header);
         ScrollView scroll = new ScrollView(this);
@@ -263,7 +421,7 @@ public final class Home extends Activity {
         button.setLayoutParams(new LinearLayout.LayoutParams(dp(56), dp(56)));
         button.setScaleType(ImageView.ScaleType.CENTER);
         button.setImageDrawable(new HeaderIcon(lock, quiet));
-        button.setBackground(rounded(0xff171717));
+        button.setBackground(rounded(lightAppearance() ? 0xffeeeeee : 0xff171717));
         button.setContentDescription(label);
         button.setTooltipText(label);
         button.setOnClickListener(view -> action.run());
@@ -285,7 +443,7 @@ public final class Home extends Activity {
             canvas.save();
             canvas.translate(bounds.left, bounds.top);
             canvas.scale(bounds.width() / 24f, bounds.height() / 24f);
-            paint.setColor(WHITE);
+            paint.setColor(foreground());
             paint.setStrokeWidth(2);
             paint.setStrokeCap(Paint.Cap.ROUND);
             paint.setStyle(Paint.Style.STROKE);
@@ -293,7 +451,7 @@ public final class Home extends Activity {
                 canvas.drawRoundRect(8, 2, 16, 14, 4, 4, paint);
                 paint.setStyle(Paint.Style.FILL);
                 canvas.drawRoundRect(4, 9, 20, 22, 2, 2, paint);
-                paint.setColor(BLACK);
+                paint.setColor(background());
                 canvas.drawCircle(12, 15, 1.5f, paint);
             } else {
                 Path bell = new Path();
@@ -415,6 +573,10 @@ public final class Home extends Activity {
 
     @Override protected void onActivityResult(int request, int result, Intent data) {
         super.onActivityResult(request, result, data);
+        if (request == PICK_EMERGENCY_PDF) {
+            if (result == RESULT_OK) saveEmergencyPdf(data);
+            return;
+        }
         if (request != PICK_MEDIA) return;
         int index = pendingMediaTile;
         pendingMediaTile = -1;
@@ -697,7 +859,53 @@ public final class Home extends Activity {
             .setPositiveButton(getString(R.string.ui_pin_zurucksetzen_44), (d, which) -> askPin(true)).create());
     }
 
+    private void showEmergencyTest() {
+        LinearLayout content = emergencyDetails();
+        TextView instructions = text(getString(R.string.emergency_test_steps), 18);
+        instructions.setPadding(0, 0, 0, dp(12));
+        content.addView(instructions, 0);
+        dialog(new AlertDialog.Builder(this).setTitle(R.string.emergency_test)
+            .setView(emergencyScroll(content)).setPositiveButton(android.R.string.ok, null).create());
+    }
+
+    private void showAppearance() {
+        LinearLayout content = emergencyContent();
+        Switch light = new Switch(this);
+        light.setText(R.string.light_appearance);
+        light.setTextSize(20);
+        light.setMinHeight(dp(56));
+        light.setChecked(lightAppearance());
+        content.addView(light);
+        int savedRadius = prefs.getInt("corner_radius", 14);
+        TextView label = text(getString(R.string.corner_radius, savedRadius), 20);
+        content.addView(label);
+        SeekBar radius = new SeekBar(this);
+        radius.setMax(32);
+        radius.setProgress(savedRadius);
+        radius.setContentDescription(getString(R.string.corner_radius_name));
+        content.addView(radius);
+        radius.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override public void onStartTrackingTouch(SeekBar bar) { }
+            @Override public void onStopTrackingTouch(SeekBar bar) { }
+            @Override public void onProgressChanged(SeekBar bar, int value, boolean fromUser) {
+                label.setText(getString(R.string.corner_radius, value));
+            }
+        });
+        dialog(new AlertDialog.Builder(this).setTitle(R.string.appearance)
+            .setView(emergencyScroll(content)).setNegativeButton(android.R.string.cancel, null)
+            .setPositiveButton(android.R.string.ok, (d, which) -> {
+                boolean themeChanged = light.isChecked() != lightAppearance();
+                prefs.edit().putBoolean("light_appearance", light.isChecked())
+                    .putInt("corner_radius", radius.getProgress()).apply();
+                if (themeChanged) recreate();
+                else showAdmin();
+            }).create());
+    }
+
+    private boolean tileSettingsVisible;
+
     private void showAdmin() {
+        tileSettingsVisible = false;
         admin = true;
         sorting = false;
         page();
@@ -706,29 +914,117 @@ public final class Home extends Activity {
         LinearLayout controls = column();
         scroll.addView(controls);
         root.addView(scroll);
+        LinearLayout home = settingsGroup(controls, R.string.settings_home, 0xffcbdcf5);
+        home.addView(button(getString(R.string.count, tiles.length(), MAX_TILES), this::showTileSettings));
+        home.addView(button(getString(R.string.language), this::chooseLanguage));
+        home.addView(button(getString(R.string.appearance), this::showAppearance));
+        LinearLayout system = settingsGroup(controls, R.string.settings_system, 0xffcce9da);
         RoleManager roles = getSystemService(RoleManager.class);
         if (roles.isRoleAvailable(RoleManager.ROLE_HOME) && !roles.isRoleHeld(RoleManager.ROLE_HOME)) {
-            controls.addView(button(getString(R.string.ui_startpertap_als_standard_wahlen_46), this::requestHome));
+            system.addView(button(getString(R.string.ui_startpertap_als_standard_wahlen_46), this::requestHome));
         }
-        controls.addView(button(getString(R.string.ui_anderen_launcher_wahlen_47), this::openHomeSettings));
+        system.addView(button(getString(R.string.ui_anderen_launcher_wahlen_47), this::openHomeSettings));
+        LinearLayout emergency = settingsGroup(controls, R.string.emergency, 0xfff4cbd2);
+        Switch emergencyAtStart = new Switch(this);
+        emergencyAtStart.setText(R.string.emergency_at_start);
+        emergencyAtStart.setTextColor(foreground());
+        emergencyAtStart.setTextSize(19);
+        emergencyAtStart.setMinHeight(dp(56));
+        emergencyAtStart.setChecked(prefs.getBoolean("emergency_at_start", false));
+        emergencyAtStart.setOnCheckedChangeListener((view, enabled) ->
+            prefs.edit().putBoolean("emergency_at_start", enabled).apply());
+        emergency.addView(emergencyAtStart);
+        Switch redBackground = new Switch(this);
+        redBackground.setText(R.string.emergency_red_background);
+        redBackground.setTextColor(foreground());
+        redBackground.setTextSize(19);
+        redBackground.setMinHeight(dp(56));
+        redBackground.setChecked(prefs.getBoolean("emergency_red_background", false));
+        redBackground.setOnCheckedChangeListener((view, enabled) ->
+            prefs.edit().putBoolean("emergency_red_background", enabled).apply());
+        emergency.addView(redBackground);
+        emergency.addView(button(getString(R.string.emergency_test), this::showEmergencyTest));
+        emergency.addView(button(getString(R.string.emergency_setup), this::editEmergency));
+        emergency.addView(button(getString(R.string.emergency_pick_pdf), this::pickEmergencyPdf));
+        if (prefs.contains("emergency_pdf")) {
+            emergency.addView(button(getString(R.string.emergency_remove_pdf), () -> {
+                prefs.edit().remove("emergency_pdf").apply();
+                showAdmin();
+            }));
+        }
+        system.addView(button(getString(R.string.ui_alle_apps_50), () -> chooseApp(getString(R.string.ui_app_offnen_51), app ->
+            open(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
+                .setComponent(component(app)), getString(R.string.ui_diese_app_ist_nicht_verfugbar_9)))));
+        system.addView(button(getString(R.string.ui_ruhemodus_freigeben_52), () -> open(
+            new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS), getString(R.string.ui_einstellung_nicht_verfugbar_53))));
+        system.addView(button(getString(R.string.ui_bildschirmvergro_erung_einrichten_54), () -> open(
+            new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS), getString(R.string.ui_einstellung_nicht_verfugbar_53))));
+        styleSettingsButtons(home);
+        styleSettingsButtons(system);
+        styleSettingsButtons(emergency);
+        controls.addView(button(getString(R.string.about), this::showAbout));
+    }
+
+    private LinearLayout settingsGroup(LinearLayout parent, int title, int pastel) {
+        LinearLayout group = column();
+        LinearLayout.LayoutParams layout = new LinearLayout.LayoutParams(-1, -2);
+        layout.topMargin = dp(12);
+        parent.addView(group, layout);
+
+        String label = getString(title);
+        LinearLayout content = column();
+        content.setPadding(dp(12), dp(8), dp(12), dp(8));
+        content.setBackground(rounded(lightAppearance() ? 0xffeeeeee : 0xff191919));
+        content.setVisibility(View.GONE);
+        Button header = new Button(this);
+        header.setText(label + "  ▾");
+        header.setAllCaps(false);
+        header.setTextSize(19);
+        header.setMinHeight(dp(56));
+        header.setTextColor(BLACK);
+        header.setBackground(new RippleDrawable(
+            android.content.res.ColorStateList.valueOf(0x33000000), rounded(pastel), null));
+        header.setOnClickListener(view -> {
+            boolean expand = content.getVisibility() == View.GONE;
+            content.setVisibility(expand ? View.VISIBLE : View.GONE);
+            header.setText(label + (expand ? "  ▴" : "  ▾"));
+            if (Build.VERSION.SDK_INT >= 30) header.setStateDescription(getString(expand ? R.string.section_expanded : R.string.section_collapsed));
+        });
+        if (Build.VERSION.SDK_INT >= 30) header.setStateDescription(getString(R.string.section_collapsed));
+        group.addView(header);
+        group.addView(content);
+        return content;
+    }
+
+    private void styleSettingsButtons(LinearLayout content) {
+        for (int i = 0; i < content.getChildCount(); i++) {
+            View child = content.getChildAt(i);
+            if (!(child instanceof Button) || child instanceof Switch) continue;
+            Button control = (Button) child;
+            control.setTextColor(foreground());
+            control.setPadding(dp(12), dp(6), dp(12), dp(6));
+            control.setBackground(new RippleDrawable(
+                android.content.res.ColorStateList.valueOf(lightAppearance() ? 0x33000000 : 0x33ffffff),
+                rounded(lightAppearance() ? WHITE : 0xff303030), null));
+            LinearLayout.LayoutParams layout = (LinearLayout.LayoutParams) control.getLayoutParams();
+            layout.topMargin = dp(6);
+        }
+    }
+
+    private void showTileSettings() {
+        sorting = false;
+        tileSettingsVisible = true;
+        page();
+        root.addView(button(getString(R.string.ui_einstellungen_2), this::showAdmin));
+        LinearLayout controls = column();
+        root.addView(emergencyScroll(controls), new LinearLayout.LayoutParams(-1, 0, 1));
         controls.addView(button(getString(R.string.ui_kacheln_sortieren_48), () -> showSort(0)));
-        controls.addView(button(getString(R.string.language), this::chooseLanguage));
-        controls.addView(button(getString(R.string.guide), () -> showInformation(false)));
-        controls.addView(button(getString(R.string.about), () -> showInformation(true)));
-        controls.addView(text(getString(R.string.count, tiles.length(), MAX_TILES), 25));
         for (int i = 0; i < tiles.length(); i++) {
             int index = i;
             controls.addView(button((i + 1) + ". " + tiles.optJSONObject(i).optString("label"),
                 () -> editTile(index)));
         }
         if (tiles.length() < MAX_TILES) controls.addView(button(getString(R.string.ui_kachel_hinzufugen_49), () -> editTile(tiles.length())));
-        controls.addView(button(getString(R.string.ui_alle_apps_50), () -> chooseApp(getString(R.string.ui_app_offnen_51), app ->
-            open(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
-                .setComponent(component(app)), getString(R.string.ui_diese_app_ist_nicht_verfugbar_9)))));
-        controls.addView(button(getString(R.string.ui_ruhemodus_freigeben_52), () -> open(
-            new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS), getString(R.string.ui_einstellung_nicht_verfugbar_53))));
-        controls.addView(button(getString(R.string.ui_bildschirmvergro_erung_einrichten_54), () -> open(
-            new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS), getString(R.string.ui_einstellung_nicht_verfugbar_53))));
     }
 
     private void chooseLanguage() {
@@ -745,28 +1041,47 @@ public final class Home extends Activity {
             }).create());
     }
 
-    private void showInformation(boolean about) {
+    private void showAbout() {
         ScrollView scroll = new ScrollView(this);
         LinearLayout content = column();
         content.setPadding(dp(22), dp(12), dp(22), dp(16));
         scroll.addView(content);
-        if (about) {
-            try {
-                String version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-                content.addView(text(getString(R.string.version, version), 24));
-            } catch (PackageManager.NameNotFoundException ignored) { }
-        }
-        TextView description = text(getString(about ? R.string.aboutbody : R.string.guidebody), 20);
+        try {
+            String version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            content.addView(text(getString(R.string.version, version), 24));
+        } catch (PackageManager.NameNotFoundException ignored) { }
+        TextView description = text(getString(R.string.aboutbody), 20);
         description.setPadding(0, dp(12), 0, 0);
         content.addView(description);
-        dialog(new AlertDialog.Builder(this).setTitle(about ? R.string.about : R.string.guide)
+        content.addView(button(getString(R.string.guide), () -> openAboutDetails(R.string.guide)));
+        content.addView(button(getString(R.string.changelog), () -> openAboutDetails(R.string.changelog)));
+        dialog(new AlertDialog.Builder(this).setTitle(R.string.about)
             .setView(scroll).setPositiveButton(android.R.string.ok, null).create());
+    }
+
+    private void openAboutDetails(int title) {
+        if (active != null) active.dismiss();
+        LinearLayout content = emergencyContent();
+        if (title == R.string.guide) {
+            content.addView(text(getString(R.string.guidebody), 20));
+        } else {
+            int[] entries = {R.string.changes_024, R.string.changes_023, R.string.changes_022, R.string.changes_021, R.string.changes_020, R.string.changes_019,
+                R.string.changes_018, R.string.changes_017};
+            for (int i = 0; i < entries.length; i++) {
+                TextView version = text(getString(R.string.version, "0." + (24 - i)), 24);
+                version.setPadding(0, dp(14), 0, dp(4));
+                content.addView(version);
+                content.addView(text(getString(entries[i]), 20));
+            }
+        }
+        dialog(new AlertDialog.Builder(this).setTitle(title).setView(emergencyScroll(content))
+            .setPositiveButton(android.R.string.ok, (d, which) -> showAbout()).create());
     }
 
     private void showSort(int sortPage) {
         sorting = true;
         page();
-        root.addView(button(getString(R.string.ui_fertig_55), this::showAdmin));
+        root.addView(button(getString(R.string.ui_fertig_55), this::showTileSettings));
         LinearLayout tabs = new LinearLayout(this);
         for (int p = 0; p < pageCount(); p++) {
             int destination = p;
