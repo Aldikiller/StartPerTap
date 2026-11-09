@@ -1,0 +1,14 @@
+<resources>
+    <string name="emergency">Екстрена допомога</string>
+    <string name="emergency_setup">Налаштувати екстрені контакти</string>
+    <string name="emergency_address">Адреса</string>
+    <string name="emergency_name">Контакт %1$d: ім’я</string>
+    <string name="emergency_phone">Контакт %1$d: номер телефону</string>
+    <string name="emergency_pick_pdf">Вибрати підписане попереднє медичне розпорядження (PDF)</string>
+    <string name="emergency_open_pdf">Відкрити попереднє медичне розпорядження (PDF)</string>
+    <string name="emergency_remove_pdf">Видалити посилання на PDF</string>
+    <string name="emergency_empty">Адресу не збережено</string>
+    <string name="emergency_unavailable">Не вдалося відкрити або додати посилання на цей елемент.</string>
+    <string name="emergency_at_start">Показувати екстрені дані під час запуску</string>
+    <string name="emergency_go_home">На головний екран</string>
+</resources>

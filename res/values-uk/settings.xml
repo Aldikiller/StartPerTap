@@ -1,0 +1,15 @@
+<resources>
+    <string name="settings_home">Головний екран і плитки</string>
+    <string name="settings_system">Система та доступність</string>
+    <string name="changelog">Історія версій</string>
+    <string name="changes_021">Налаштування згруповано за темами. Коротка інструкція та історія доступні в розділі Про StartPerTap.</string>
+    <string name="changes_020">Значок швидкої допомоги без підпису. Екстрений екран закривається через чотири секунди.</string>
+    <string name="changes_019">Додано необов’язковий екстрений екран під час запуску. Його можна ввімкнути в налаштуваннях із PIN-кодом.</string>
+    <string name="changes_018">Екстрене вікно з адресою, трьома контактами та посиланням на підписане медичне розпорядження у PDF. Натискання контакту відкриває набір номера.</string>
+    <string name="changes_017">Задокументована версія з 36 плитками, офлайн-файлами та редагуванням із PIN-кодом.</string>
+    <string name="emergency_red_background">Червоне тло для екстреного значка</string>
+    <string name="changes_022">Тло екстреного значка за замовчуванням прозоре. Червоне тло можна ввімкнути в налаштуваннях.</string>
+    <string name="section_expanded">Розгорнуто</string>
+    <string name="section_collapsed">Згорнуто</string>
+    <string name="changes_024">Розділи налаштувань спочатку згорнуті й мають різні пастельні кольори та заокруглені кнопки.</string>
+</resources>

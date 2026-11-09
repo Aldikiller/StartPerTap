@@ -1,0 +1,9 @@
+<resources>
+    <string name="appearance">Вигляд</string>
+    <string name="light_appearance">Світле тло</string>
+    <string name="corner_radius_name">Заокруглення кутів</string>
+    <string name="corner_radius">Заокруглення кутів (%1$d dp)</string>
+    <string name="emergency_test">Перевірити екстрені дані</string>
+    <string name="emergency_test_steps">Увімкніть режим польоту й вимкніть Wi-Fi. Перевірте адресу, номери та відкриття PDF. Натискання номера відкриває набір номера.</string>
+    <string name="changes_023">Додано світле тло, регулювання заокруглення та перевірку екстрених даних.</string>
+</resources>
