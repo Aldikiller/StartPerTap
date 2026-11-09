@@ -1,0 +1,15 @@
+<resources>
+    <string name="settings_home">Inicio y mosaicos</string>
+    <string name="settings_system">Sistema y accesibilidad</string>
+    <string name="changelog">Historial de versiones</string>
+    <string name="changes_021">Ajustes agrupados por tema. La guía rápida y el historial están en Acerca de StartPerTap.</string>
+    <string name="changes_020">Icono de ambulancia sin texto. La vista de emergencia se cierra tras cuatro segundos.</string>
+    <string name="changes_019">Vista de emergencia opcional al iniciar, configurable en los ajustes protegidos por PIN.</string>
+    <string name="changes_018">Ventana de emergencia con dirección, hasta tres contactos y un enlace al PDF firmado de instrucciones previas. Al tocar un contacto se abre el marcador.</string>
+    <string name="changes_017">Versión documentada con hasta 36 mosaicos, archivos sin conexión y edición protegida por PIN.</string>
+    <string name="emergency_red_background">Fondo rojo para el icono de emergencia</string>
+    <string name="changes_022">El fondo del icono de emergencia es transparente por defecto. Puedes activar el fondo rojo en los ajustes.</string>
+    <string name="section_expanded">Expandido</string>
+    <string name="section_collapsed">Contraído</string>
+    <string name="changes_024">Las secciones de ajustes se muestran plegadas con colores pastel distintos y botones redondeados.</string>
+</resources>

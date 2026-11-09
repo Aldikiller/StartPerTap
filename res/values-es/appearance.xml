@@ -1,0 +1,9 @@
+<resources>
+    <string name="appearance">Apariencia</string>
+    <string name="light_appearance">Fondo claro</string>
+    <string name="corner_radius_name">Redondeo de esquinas</string>
+    <string name="corner_radius">Redondeo de esquinas (%1$d dp)</string>
+    <string name="emergency_test">Probar datos de emergencia</string>
+    <string name="emergency_test_steps">Activa el modo avión y desactiva el Wi-Fi. Comprueba la dirección, los números y que el PDF se abre. Al tocar un número se abre el marcador.</string>
+    <string name="changes_023">Fondo claro, esquinas ajustables y prueba de los datos de emergencia.</string>
+</resources>
