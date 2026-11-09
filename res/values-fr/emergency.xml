@@ -1,0 +1,14 @@
+<resources>
+    <string name="emergency">Urgence</string>
+    <string name="emergency_setup">Configurer les contacts d’urgence</string>
+    <string name="emergency_address">Adresse</string>
+    <string name="emergency_name">Contact %1$d : nom</string>
+    <string name="emergency_phone">Contact %1$d : téléphone</string>
+    <string name="emergency_pick_pdf">Choisir les directives anticipées signées (PDF)</string>
+    <string name="emergency_open_pdf">Ouvrir les directives anticipées (PDF)</string>
+    <string name="emergency_remove_pdf">Retirer le lien vers le PDF</string>
+    <string name="emergency_empty">Aucune adresse enregistrée</string>
+    <string name="emergency_unavailable">Impossible d’ouvrir ou de lier cet élément.</string>
+    <string name="emergency_at_start">Afficher les informations d’urgence au démarrage</string>
+    <string name="emergency_go_home">Aller à l’écran d’accueil</string>
+</resources>

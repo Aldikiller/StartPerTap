@@ -1,0 +1,15 @@
+<resources>
+    <string name="settings_home">Accueil et tuiles</string>
+    <string name="settings_system">Système et accessibilité</string>
+    <string name="changelog">Historique des versions</string>
+    <string name="changes_021">Paramètres regroupés par thème. Le guide rapide et l’historique se trouvent dans À propos de StartPerTap.</string>
+    <string name="changes_020">Icône d’ambulance sans texte. La vue d’urgence se ferme après quatre secondes.</string>
+    <string name="changes_019">Vue d’urgence facultative au démarrage, configurable dans les paramètres protégés par code PIN.</string>
+    <string name="changes_018">Fenêtre d’urgence avec une adresse, trois contacts au maximum et un lien vers les directives anticipées signées en PDF. Un appui sur un contact ouvre le clavier téléphonique.</string>
+    <string name="changes_017">Version documentée avec jusqu’à 36 tuiles, fichiers hors ligne et modification protégée par code PIN.</string>
+    <string name="emergency_red_background">Fond rouge pour l’icône d’urgence</string>
+    <string name="changes_022">Le fond de l’icône d’urgence est transparent par défaut. Le fond rouge peut être activé dans les paramètres.</string>
+    <string name="section_expanded">Déplié</string>
+    <string name="section_collapsed">Replié</string>
+    <string name="changes_024">Les sections des paramètres sont repliées au départ, avec des couleurs pastel distinctes et des boutons arrondis.</string>
+</resources>

@@ -1,0 +1,9 @@
+<resources>
+    <string name="appearance">Apparence</string>
+    <string name="light_appearance">Fond clair</string>
+    <string name="corner_radius_name">Arrondi des angles</string>
+    <string name="corner_radius">Arrondi des angles (%1$d dp)</string>
+    <string name="emergency_test">Tester les informations d’urgence</string>
+    <string name="emergency_test_steps">Activez le mode avion et désactivez le Wi-Fi. Vérifiez l’adresse, les numéros et l’ouverture du PDF. Un appui sur un numéro ouvre le clavier téléphonique.</string>
+    <string name="changes_023">Fond clair, arrondi des angles réglable et test des informations d’urgence.</string>
+</resources>
