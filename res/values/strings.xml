@@ -114,4 +114,15 @@
     <string name="media_choose">Choose audio, video or PDF</string>
     <string name="media_file">File</string>
     <string name="media_unavailable">File unavailable or no compatible app is installed.</string>
+    <string name="wifi_connected">Wi-Fi connected</string>
+    <string name="wifi_disconnected">Wi-Fi disconnected</string>
+    <string name="wifi_confirm">Open Wi-Fi controls to turn Wi-Fi on or off?</string>
+    <string name="wifi_open">Open Wi-Fi</string>
+    <string name="wifi_unavailable">Wi-Fi settings are unavailable.</string>
+    <string name="hide_navigation_bar">Hide navigation bar</string>
+    <string name="reveal_navigation_bar">Swipe from the bottom edge to show the bar briefly.</string>
+    <string name="first_page_layout">First page layout</string>
+    <string name="first_page_standard">Standard (up to 16 tiles)</string>
+    <string name="first_page_capacity">Up to %1$d tiles</string>
+    <string name="first_page_preview">Preview: %1$d of %2$d tiles on the first page</string>
 </resources>
