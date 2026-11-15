@@ -4,14 +4,20 @@
 
 Безкоштовний лаунчер Android із великими плитками для людей зі слабким зором.
 
-[![StartPerTap](StartPerTap-GitHub-Banner-uk.svg)](https://github.com/Aldikiller/StartPerTap/releases/tag/v0.24)
+[![StartPerTap](StartPerTap-GitHub-Banner-uk.svg)](https://github.com/Aldikiller/StartPerTap/releases/tag/v0.25)
 
 ## Завантаження
 
-[StartPerTap 0.24 (APK)](https://github.com/Aldikiller/StartPerTap/releases/download/v0.24/StartPerTap-0.24.apk)
+[StartPerTap 0.25 (APK)](https://github.com/Aldikiller/StartPerTap/releases/download/v0.25/StartPerTap-0.25.apk)
 
 Установіть APK на Android 10 або новішу версію. Відкрийте StartPerTap і налаштуйте плитки через **Замок → PIN-код**. У налаштуваннях виберіть **Вибрати StartPerTap за замовчуванням**, щоб змінити головний екран.
 
+
+## Що нового у версії 0.25
+
+- Виберіть до 2, 4 або 6 плиток для першої сторінки та перегляньте її перед збереженням.
+- Кнопка Wi-Fi показує стан підключення та запитує підтвердження перед відкриттям налаштувань Android.
+- Панель навігації можна приховати й ненадовго повернути рухом угору від нижнього краю.
 
 ## Що нового у версії 0.24
 
