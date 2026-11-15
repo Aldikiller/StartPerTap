@@ -114,4 +114,15 @@
     <string name="media_choose">Вибрати аудіо, відео або PDF</string>
     <string name="media_file">Файл</string>
     <string name="media_unavailable">Файл недоступний або немає сумісної програми.</string>
+    <string name="wifi_connected">Wi-Fi підключено</string>
+    <string name="wifi_disconnected">Wi-Fi не підключено</string>
+    <string name="wifi_confirm">Відкрити налаштування Wi-Fi, щоб увімкнути або вимкнути його?</string>
+    <string name="wifi_open">Відкрити Wi-Fi</string>
+    <string name="wifi_unavailable">Налаштування Wi-Fi недоступні.</string>
+    <string name="hide_navigation_bar">Приховати панель навігації</string>
+    <string name="reveal_navigation_bar">Проведіть угору від нижнього краю екрана, щоб ненадовго показати панель.</string>
+    <string name="first_page_layout">Макет першої сторінки</string>
+    <string name="first_page_standard">Стандартний (до 16 плиток)</string>
+    <string name="first_page_capacity">До %1$d плиток</string>
+    <string name="first_page_preview">Попередній перегляд: %1$d із %2$d плиток на першій сторінці</string>
 </resources>
