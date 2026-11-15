@@ -21,15 +21,7 @@ Install the APK on Android 10 or later. Open StartPerTap and use **Lock → PIN*
 - Preview the Pastel, High contrast and Black and white themes, or use your existing colors.
 - Save named layouts on the device and export or restore a JSON backup. Select local media files again after transferring to another device.
 
-## What’s new in 0.25
-
-- Choose a first page with up to 2, 4, or 6 tiles and preview it before saving.
-- The Wi-Fi button reports connection status and asks before opening Android’s Wi-Fi controls.
-- Optionally hide the navigation bar in StartPerTap. Swipe up from the bottom edge to reveal it briefly.
-
-## What’s new in 0.24
-
-Settings sections for home and tiles, system and accessibility, and emergencies start collapsed. Each has its own pastel color and rounded buttons.
+[Changelog](CHANGELOG.md)
 
 ## Emergency information
 
@@ -47,7 +39,7 @@ The videos show concept mockups. The images below are screenshots from the app.
 
 <img src="docs/StartPerTap-Pixel-Startseite.jpg" alt="StartPerTap home screen with four large tiles" width="230"> <img src="docs/StartPerTap-Pixel-Einstellungen.jpg" alt="StartPerTap settings" width="230"> <img src="docs/StartPerTap-Pixel-Kacheln.jpg" alt="Tile management and accessibility options" width="230">
 
-[About StartPerTap 0.16](docs/StartPerTap-Pixel-Info.jpg)
+[Historical screenshot from 0.16](docs/StartPerTap-Pixel-Info.jpg)
 
 ## Features
 
