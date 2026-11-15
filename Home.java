@@ -24,6 +24,8 @@ import android.text.*;
 import android.util.Base64;
 import android.view.*;
 import android.widget.*;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.*;
 import javax.crypto.SecretKeyFactory;
@@ -36,6 +38,7 @@ public final class Home extends Activity {
     private static final int BLUE = 0xff1558ca;
     private static final int MAX_TILES = 36;
     private static final int PAGE_SIZE = 16;
+    private static final int[] TILE_LABEL_SIZES = {0, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54};
     private static final String[] LANGUAGE_TAGS = {"", "de", "en", "es", "fr", "uk"};
     private static final String[] LANGUAGE_NAMES = {"", "Deutsch", "English", "Español", "Français", "Українська"};
     private static final String WHATSAPP_CALL = "vnd.android.cursor.item/vnd.com.whatsapp.voip.call";
@@ -51,14 +54,22 @@ public final class Home extends Activity {
     private boolean admin;
     private boolean sorting;
     private int homePage;
+    private HorizontalScrollView homeHeader;
     private float swipeX;
     private float swipeY;
     private boolean trackingSwipe;
     private String pendingCall;
     private static final int PICK_MEDIA = 40;
+    private static final int EXPORT_LAYOUT = 42;
+    private static final int IMPORT_LAYOUT = 43;
+    private static final int MAX_BACKUP_BYTES = 64 * 1024;
+    private static final int MAX_PROFILES = 12;
+    private String pendingExportProfile;
     private int pendingMediaTile = -1;
     private String pendingMediaLabel;
     private int pendingMediaColor;
+    private int pendingMediaLabelSize;
+    private String pendingMediaSymbol;
 
     @Override protected void attachBaseContext(Context base) {
         String tag = base.getSharedPreferences("launcher", MODE_PRIVATE).getString("language", "");
@@ -74,6 +85,7 @@ public final class Home extends Activity {
         prefs = getSharedPreferences("launcher", MODE_PRIVATE);
         if (lightAppearance()) setTheme(android.R.style.Theme_Material_Light_NoActionBar);
         super.onCreate(state);
+        if (state != null) pendingExportProfile = state.getString("pending_export_profile");
         notifications = getSystemService(NotificationManager.class);
         try {
             tiles = new JSONArray(prefs.getString("tiles", "[]"));
@@ -86,6 +98,11 @@ public final class Home extends Activity {
             tiles.put(tile("App 2", "", "", 0xff7222a0));
         }
         showLaunchScreen();
+    }
+
+    @Override protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+        state.putString("pending_export_profile", pendingExportProfile);
     }
 
     private ImageButton wifiControl;
@@ -164,7 +181,7 @@ public final class Home extends Activity {
     @Override public boolean dispatchTouchEvent(MotionEvent event) {
         int action = event.getActionMasked();
         if (action == MotionEvent.ACTION_DOWN) {
-            trackingSwipe = !admin && active == null && pageCount() > 1;
+            trackingSwipe = !admin && active == null && pageCount() > 1 && !touchesScrollableHeader(event);
             swipeX = event.getX();
             swipeY = event.getY();
         } else if (action == MotionEvent.ACTION_POINTER_DOWN || action == MotionEvent.ACTION_CANCEL) {
@@ -183,6 +200,15 @@ public final class Home extends Activity {
             }
         }
         return super.dispatchTouchEvent(event);
+    }
+
+    private boolean touchesScrollableHeader(MotionEvent event) {
+        if (homeHeader == null || (!homeHeader.canScrollHorizontally(-1) && !homeHeader.canScrollHorizontally(1))) {
+            return false;
+        }
+        int[] location = new int[2];
+        homeHeader.getLocationOnScreen(location);
+        return event.getRawY() >= location[1] && event.getRawY() < location[1] + homeHeader.getHeight();
     }
 
     private int pageCount() {
@@ -215,7 +241,8 @@ public final class Home extends Activity {
     }
 
     private boolean lightAppearance() {
-        return prefs.getBoolean("light_appearance", false);
+        Theme theme = currentTheme();
+        return theme == Theme.CUSTOM ? prefs.getBoolean("light_appearance", false) : theme.light;
     }
 
     private int foreground() {
@@ -223,7 +250,41 @@ public final class Home extends Activity {
     }
 
     private int background() {
-        return lightAppearance() ? WHITE : BLACK;
+        Theme theme = currentTheme();
+        return theme == Theme.CUSTOM ? (lightAppearance() ? WHITE : BLACK) : theme.surface;
+    }
+
+    private enum Theme {
+        CUSTOM(R.string.theme_current, false, BLACK),
+        PASTEL(R.string.theme_pastel, true, 0xfffaf6f0,
+            0xffbfd9ee, 0xfff6d2de, 0xffc5e4d2, 0xfff7dfb7, 0xffddd0ee, 0xffbfe3e3),
+        CONTRAST(R.string.theme_contrast, false, BLACK,
+            0xffffe400, 0xff00eaff, 0xffff9630, 0xfff8f8f8, 0xff71ff44, 0xffff70c6),
+        MONO(R.string.theme_mono, false, BLACK, WHITE);
+
+        final int title;
+        final boolean light;
+        final int surface;
+        final int[] palette;
+
+        Theme(int title, boolean light, int surface, int... palette) {
+            this.title = title;
+            this.light = light;
+            this.surface = surface;
+            this.palette = palette;
+        }
+
+        int colorAt(int position) {
+            return palette[position % palette.length];
+        }
+    }
+
+    private Theme currentTheme() {
+        String stored = prefs.getString("design_theme", Theme.CUSTOM.name());
+        for (Theme theme : Theme.values()) {
+            if (theme.name().equals(stored)) return theme;
+        }
+        return Theme.CUSTOM;
     }
 
     private GradientDrawable rounded(int color) {
@@ -240,6 +301,7 @@ public final class Home extends Activity {
     }
 
     private void page() {
+        homeHeader = null;
         root = column();
         root.setBackgroundColor(background());
         root.setPadding(dp(12), dp(8), dp(12), dp(8));
@@ -425,18 +487,61 @@ public final class Home extends Activity {
         page();
         LinearLayout header = new LinearLayout(this);
         header.setGravity(Gravity.END);
+        Map<Symbol, ImageButton> buttons = new EnumMap<>(Symbol.class);
         wifiControl = iconButton(false, false, "", this::confirmWifiSettings);
         wifiControl.setImageResource(R.drawable.wifi_status);
         wifiControl.setColorFilter(foreground());
+        applyHeaderColor(wifiControl, Symbol.WIFI);
         updateWifiStatus();
-        header.addView(wifiControl);
+        buttons.put(Symbol.WIFI, wifiControl);
+        if (headerVisible(Symbol.APPS)) {
+            ImageButton apps = iconButton(false, false, getString(R.string.ui_alle_apps_50), this::showAllApps);
+            apps.setImageResource(R.drawable.all_apps);
+            apps.setColorFilter(foreground());
+            applyHeaderColor(apps, Symbol.APPS);
+            buttons.put(Symbol.APPS, apps);
+        }
         int filter = notifications.getCurrentInterruptionFilter();
         boolean quiet = filter != NotificationManager.INTERRUPTION_FILTER_ALL
             && filter != NotificationManager.INTERRUPTION_FILTER_UNKNOWN;
-        header.addView(iconButton(false, quiet, quiet ? getString(R.string.ui_ruhemodus_aktiv_0) : getString(R.string.ui_ruhemodus_aus_1), this::toggleQuiet));
-        header.addView(emergencyButton());
-        header.addView(iconButton(true, false, getString(R.string.ui_einstellungen_2), this::askPin));
-        root.addView(header);
+        ImageButton bell = iconButton(false, quiet, quiet ? getString(R.string.ui_ruhemodus_aktiv_0) : getString(R.string.ui_ruhemodus_aus_1), this::toggleQuiet);
+        applyHeaderColor(bell, Symbol.QUIET);
+        buttons.put(Symbol.QUIET, bell);
+        ImageButton emergency = emergencyButton();
+        applyHeaderColor(emergency, Symbol.EMERGENCY);
+        buttons.put(Symbol.EMERGENCY, emergency);
+        ImageButton lock = iconButton(true, false, getString(R.string.ui_einstellungen_2), this::askPin);
+        applyHeaderColor(lock, Symbol.LOCK);
+        buttons.put(Symbol.LOCK, lock);
+        if (headerVisible(Symbol.SETTINGS)) {
+            ImageButton settings = iconButton(false, false, getString(Symbol.SETTINGS.title), () ->
+                open(new Intent(Settings.ACTION_SETTINGS), getString(R.string.ui_einstellung_nicht_verfugbar_53)));
+            settings.setImageResource(R.drawable.settings_gear);
+            settings.setColorFilter(foreground());
+            applyHeaderColor(settings, Symbol.SETTINGS);
+            buttons.put(Symbol.SETTINGS, settings);
+        }
+        for (Symbol symbol : headerOrder()) {
+            ImageButton control = buttons.get(symbol);
+            if (control != null && headerVisible(symbol)) header.addView(control);
+        }
+        if (!headerVisible(Symbol.LOCK)) {
+            Button access = button(getString(R.string.launcher_settings_access), this::askPin);
+            header.addView(access, 0);
+        }
+        if (header.getChildCount() * 56 + 24 > getResources().getConfiguration().screenWidthDp) {
+            for (int i = 0; i < header.getChildCount(); i++) {
+                View control = header.getChildAt(i);
+                if (control instanceof ImageButton) {
+                    control.setLayoutParams(new LinearLayout.LayoutParams(dp(48), dp(56)));
+                }
+            }
+        }
+        homeHeader = new HorizontalScrollView(this);
+        homeHeader.setFillViewport(true);
+        homeHeader.setHorizontalScrollBarEnabled(false);
+        homeHeader.addView(header);
+        root.addView(homeHeader);
         ScrollView scroll = new ScrollView(this);
         scroll.setFillViewport(true);
         LinearLayout grid = column();
@@ -473,6 +578,7 @@ public final class Home extends Activity {
         if (scale > 1.5f) columns = Math.min(columns, 2);
         int rows = (count + columns - 1) / columns;
         int tileHeight = count <= 2 ? 214 : 160;
+        Theme theme = currentTheme();
         for (int rowIndex = 0; rowIndex < rows; rowIndex++) {
             LinearLayout row = new LinearLayout(this);
             for (int col = 0; col < columns; col++) {
@@ -484,10 +590,17 @@ public final class Home extends Activity {
                     continue;
                 }
                 JSONObject tile = tiles.optJSONObject(offset + index);
-                row.addView(tileView(tile, columns, interactive), size);
+                int color = theme == Theme.CUSTOM ? tile.optInt("color", BLUE) : theme.colorAt(offset + index);
+                View face = tileView(tile, columns, color, interactive);
+                if (theme == Theme.MONO) {
+                    GradientDrawable bordered = rounded(color);
+                    bordered.setStroke(dp(2), BLACK);
+                    face.setBackground(bordered);
+                }
+                row.addView(face, size);
             }
-            LinearLayout.LayoutParams size = new LinearLayout.LayoutParams(-1,
-                dp((int) (tileHeight * Math.max(1f, scale / 1.25f))), 1);
+            row.setMinimumHeight(dp((int) (tileHeight * Math.max(1f, scale / 1.25f))));
+            LinearLayout.LayoutParams size = new LinearLayout.LayoutParams(-1, -2, 1);
             grid.addView(row, size);
         }
     }
@@ -510,7 +623,9 @@ public final class Home extends Activity {
         String label = getString(status);
         wifiControl.setContentDescription(label);
         wifiControl.setTooltipText(label);
-        wifiControl.setAlpha(status == R.string.wifi_connected ? 1f : 0.65f);
+        wifiControl.setAlpha(status == R.string.wifi_connected || currentTheme() != Theme.CUSTOM
+            || prefs.contains(Symbol.WIFI.colorPreference())
+            ? 1f : 0.65f);
     }
 
     private void confirmWifiSettings() {
@@ -531,7 +646,7 @@ public final class Home extends Activity {
         ImageButton button = new ImageButton(this);
         button.setLayoutParams(new LinearLayout.LayoutParams(dp(56), dp(56)));
         button.setScaleType(ImageView.ScaleType.CENTER);
-        button.setImageDrawable(new HeaderIcon(lock, quiet));
+        button.setImageDrawable(new HeaderIcon(lock, quiet, foreground(), background()));
         button.setBackground(rounded(lightAppearance() ? 0xffeeeeee : 0xff171717));
         button.setContentDescription(label);
         button.setTooltipText(label);
@@ -539,13 +654,89 @@ public final class Home extends Activity {
         return button;
     }
 
+    private enum Symbol {
+        WIFI(R.string.symbol_wifi), APPS(R.string.ui_alle_apps_50), QUIET(R.string.symbol_quiet),
+        EMERGENCY(R.string.emergency), LOCK(R.string.symbol_lock), SETTINGS(R.string.device_settings);
+
+        final int title;
+        Symbol(int title) { this.title = title; }
+        String colorPreference() { return "header_color_" + name(); }
+        String visibilityPreference() { return "header_visible_" + name(); }
+    }
+
+    private boolean headerVisible(Symbol symbol) {
+        return prefs.getBoolean(symbol.visibilityPreference(), true);
+    }
+
+    private List<Symbol> headerOrder() {
+        List<Symbol> order = new ArrayList<>();
+        List<String> stored = Arrays.asList(prefs.getString("header_order", "").split(","));
+        for (String name : stored) {
+            for (Symbol symbol : Symbol.values()) {
+                if (symbol.name().equals(name) && !order.contains(symbol)) order.add(symbol);
+            }
+        }
+        for (Symbol symbol : Symbol.values()) {
+            if (!order.contains(symbol)) order.add(symbol);
+        }
+        return order;
+    }
+
+    private Symbol tileSymbol(JSONObject tile) {
+        String stored = tile.optString("symbol");
+        for (Symbol symbol : Symbol.values()) {
+            if (symbol.name().equals(stored)) return symbol;
+        }
+        return null;
+    }
+
+    private int contrastingInk(int color) {
+        return Color.luminance(color) >= 0.179f ? BLACK : WHITE;
+    }
+
+    private Drawable symbolDrawable(Symbol symbol, int color, boolean quiet) {
+        int ink = contrastingInk(color);
+        if (symbol == Symbol.QUIET || symbol == Symbol.LOCK) {
+            return new HeaderIcon(symbol == Symbol.LOCK, quiet, ink, color);
+        }
+        int drawable;
+        switch (symbol) {
+            case WIFI: drawable = R.drawable.wifi_status; break;
+            case APPS: drawable = R.drawable.all_apps; break;
+            case SETTINGS: drawable = R.drawable.settings_gear; break;
+            default: drawable = R.drawable.emergency_ambulance;
+        }
+        Drawable icon = getDrawable(drawable).mutate();
+        icon.setTint(ink);
+        return icon;
+    }
+
+    private void applyHeaderColor(ImageButton button, Symbol symbol) {
+        String key = symbol.colorPreference();
+        Theme theme = currentTheme();
+        if (theme == Theme.CUSTOM && !prefs.contains(key)) return;
+        int color = theme == Theme.CUSTOM ? prefs.getInt(key, BLUE) : theme.colorAt(symbol.ordinal());
+        button.clearColorFilter();
+        button.setBackground(rounded(color));
+        if (symbol == Symbol.QUIET) {
+            button.setImageDrawable(new HeaderIcon(false, ((HeaderIcon) button.getDrawable()).quiet,
+                contrastingInk(color), color));
+        } else {
+            button.setImageDrawable(symbolDrawable(symbol, color, false));
+        }
+    }
+
     private final class HeaderIcon extends Drawable {
         private final boolean lock;
         private final boolean quiet;
+        private final int ink;
+        private final int surface;
         private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        HeaderIcon(boolean lock, boolean quiet) {
+        HeaderIcon(boolean lock, boolean quiet, int ink, int surface) {
             this.lock = lock;
             this.quiet = quiet;
+            this.ink = ink;
+            this.surface = surface;
         }
         @Override public int getIntrinsicWidth() { return dp(28); }
         @Override public int getIntrinsicHeight() { return dp(28); }
@@ -554,7 +745,7 @@ public final class Home extends Activity {
             canvas.save();
             canvas.translate(bounds.left, bounds.top);
             canvas.scale(bounds.width() / 24f, bounds.height() / 24f);
-            paint.setColor(foreground());
+            paint.setColor(ink);
             paint.setStrokeWidth(2);
             paint.setStrokeCap(Paint.Cap.ROUND);
             paint.setStyle(Paint.Style.STROKE);
@@ -562,7 +753,7 @@ public final class Home extends Activity {
                 canvas.drawRoundRect(8, 2, 16, 14, 4, 4, paint);
                 paint.setStyle(Paint.Style.FILL);
                 canvas.drawRoundRect(4, 9, 20, 22, 2, 2, paint);
-                paint.setColor(background());
+                paint.setColor(surface);
                 canvas.drawCircle(12, 15, 1.5f, paint);
             } else {
                 Path bell = new Path();
@@ -584,21 +775,28 @@ public final class Home extends Activity {
         @Override public int getOpacity() { return PixelFormat.TRANSLUCENT; }
     }
 
-    private View tileView(JSONObject tile, int columns, boolean interactive) {
-        int color = tile.optInt("color", BLUE);
-        int ink = Color.luminance(color) >= 0.179f ? BLACK : WHITE;
+    private View tileView(JSONObject tile, int columns, int color, boolean interactive) {
+        int ink = contrastingInk(color);
+        Symbol displaySymbol = tileSymbol(tile);
         String title = tile.optString("label");
         LinearLayout face = column();
         face.setGravity(Gravity.CENTER);
         face.setPadding(dp(5), dp(7), dp(5), dp(7));
         face.setBackground(rounded(color));
-        Drawable appIcon = appIcon(tile.optString("app"));
+        Drawable appIcon = displaySymbol == null ? appIcon(tile.optString("app"))
+            : displaySymbol == Symbol.WIFI ? null : symbolDrawable(displaySymbol, color, false);
         if (appIcon != null) {
             ImageView image = new ImageView(this);
+            image.setScaleType(ImageView.ScaleType.FIT_CENTER);
             image.setImageDrawable(appIcon);
+            if (currentTheme() == Theme.MONO) {
+                ColorMatrix grayscale = new ColorMatrix();
+                grayscale.setSaturation(0);
+                image.setColorFilter(new ColorMatrixColorFilter(grayscale));
+            }
             int iconSize = dp(columns == 1 ? 88 : 64);
             face.addView(image, new LinearLayout.LayoutParams(iconSize, iconSize));
-        } else {
+        } else if (displaySymbol == null) {
             String glyph = tile.optString("url").isEmpty() && tile.optString("file").isEmpty() ? "＋" : "▶";
             if ("application/pdf".equals(tile.optString("fileType"))) glyph = "PDF";
             if (!tile.optString("phone").isEmpty()) glyph = "☎";
@@ -608,15 +806,18 @@ public final class Home extends Activity {
             symbol.setIncludeFontPadding(false);
             face.addView(symbol);
         }
-        TextView label = text(title, columns == 1 ? 38 : 26);
+        int labelSize = tile.optInt("labelSize");
+        TextView label = text(title, labelSize > 0 ? labelSize : columns == 1 ? 38 : 26);
         label.setGravity(Gravity.CENTER);
         label.setTextColor(ink);
         label.setTypeface(null, Typeface.BOLD);
         face.addView(label);
         if (interactive) {
-            face.setContentDescription(title);
+            face.setContentDescription(displaySymbol == null || displaySymbol == Symbol.WIFI ? title
+                : getString(R.string.symbol_tile_description, title, getString(displaySymbol.title)));
             face.setFocusable(true);
-            face.setOnClickListener(v -> launchTile(tile));
+            if (displaySymbol == null) face.setOnClickListener(v -> launchTile(tile));
+            else face.setScreenReaderFocusable(true);
         }
         return face;
     }
@@ -671,7 +872,7 @@ public final class Home extends Activity {
         }
     }
 
-    private void pickMedia(int index, String label, int color) {
+    private void pickMedia(int index, String label, int color, int labelSize, String symbol) {
         Intent picker = new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE)
             .setType("*/*").putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"audio/*", "video/*", "application/pdf"});
         try {
@@ -679,6 +880,8 @@ public final class Home extends Activity {
             pendingMediaTile = index;
             pendingMediaLabel = label;
             pendingMediaColor = color;
+            pendingMediaLabelSize = labelSize;
+            pendingMediaSymbol = symbol;
         } catch (ActivityNotFoundException e) {
             notice(getString(R.string.media_unavailable));
         }
@@ -686,6 +889,14 @@ public final class Home extends Activity {
 
     @Override protected void onActivityResult(int request, int result, Intent data) {
         super.onActivityResult(request, result, data);
+        if (request == EXPORT_LAYOUT || request == IMPORT_LAYOUT) {
+            String profile = request == EXPORT_LAYOUT ? pendingExportProfile : null;
+            if (request == EXPORT_LAYOUT) pendingExportProfile = null;
+            if (result == RESULT_OK && data != null && data.getData() != null) {
+                transferLayout(request, data.getData(), profile);
+            }
+            return;
+        }
         if (request == PICK_EMERGENCY_PDF) {
             if (result == RESULT_OK) saveEmergencyPdf(data);
             return;
@@ -715,6 +926,8 @@ public final class Home extends Activity {
         try {
             selected.put("file", uri.toString());
             selected.put("fileType", type);
+            selected.put("labelSize", pendingMediaLabelSize);
+            selected.put("symbol", pendingMediaSymbol);
         } catch (JSONException e) {
             throw new IllegalStateException(e);
         }
@@ -987,7 +1200,7 @@ public final class Home extends Activity {
         light.setText(R.string.light_appearance);
         light.setTextSize(20);
         light.setMinHeight(dp(56));
-        light.setChecked(lightAppearance());
+        light.setChecked(prefs.getBoolean("light_appearance", false));
         content.addView(light);
         int savedRadius = prefs.getInt("corner_radius", 14);
         TextView label = text(getString(R.string.corner_radius, savedRadius), 20);
@@ -1007,7 +1220,7 @@ public final class Home extends Activity {
         dialog(new AlertDialog.Builder(this).setTitle(R.string.appearance)
             .setView(emergencyScroll(content)).setNegativeButton(android.R.string.cancel, null)
             .setPositiveButton(android.R.string.ok, (d, which) -> {
-                boolean themeChanged = light.isChecked() != lightAppearance();
+                boolean themeChanged = currentTheme() == Theme.CUSTOM && light.isChecked() != lightAppearance();
                 prefs.edit().putBoolean("light_appearance", light.isChecked())
                     .putInt("corner_radius", radius.getProgress()).apply();
                 if (themeChanged) recreate();
@@ -1027,11 +1240,30 @@ public final class Home extends Activity {
         LinearLayout controls = column();
         scroll.addView(controls);
         root.addView(scroll);
+        Switch quickApps = headerVisibilitySwitch(Symbol.APPS);
+        controls.addView(quickApps);
+        Switch quickSettings = headerVisibilitySwitch(Symbol.SETTINGS);
+        controls.addView(quickSettings);
         LinearLayout home = settingsGroup(controls, R.string.settings_home, 0xffcbdcf5);
         home.addView(button(getString(R.string.count, tiles.length(), MAX_TILES), this::showTileSettings));
         home.addView(button(getString(R.string.first_page_layout), this::chooseFirstPageLayout));
+        home.addView(button(getString(R.string.layout_profiles), this::showProfiles));
         home.addView(button(getString(R.string.language), this::chooseLanguage));
         home.addView(button(getString(R.string.appearance), this::showAppearance));
+        home.addView(button(getString(R.string.design_themes), this::chooseTheme));
+        LinearLayout header = settingsGroup(controls, R.string.header_settings, 0xffdce0f5);
+        header.addView(button(getString(R.string.header_order), this::reorderHeader));
+        for (Symbol symbol : headerOrder()) {
+            Button color = new Button(this);
+            color.setAllCaps(false);
+            color.setTextSize(19);
+            color.setMinHeight(dp(56));
+            color.setTag(symbol);
+            color.setOnClickListener(view -> chooseHeaderColor(symbol, () -> updateHeaderColorButton(color, symbol)));
+            LinearLayout.LayoutParams colorLayout = new LinearLayout.LayoutParams(-1, -2);
+            colorLayout.topMargin = dp(6);
+            header.addView(color, colorLayout);
+        }
         LinearLayout system = settingsGroup(controls, R.string.settings_system, 0xffcce9da);
         RoleManager roles = getSystemService(RoleManager.class);
         if (roles.isRoleAvailable(RoleManager.ROLE_HOME) && !roles.isRoleHeld(RoleManager.ROLE_HOME)) {
@@ -1060,15 +1292,6 @@ public final class Home extends Activity {
         emergencyAtStart.setOnCheckedChangeListener((view, enabled) ->
             prefs.edit().putBoolean("emergency_at_start", enabled).apply());
         emergency.addView(emergencyAtStart);
-        Switch redBackground = new Switch(this);
-        redBackground.setText(R.string.emergency_red_background);
-        redBackground.setTextColor(foreground());
-        redBackground.setTextSize(19);
-        redBackground.setMinHeight(dp(56));
-        redBackground.setChecked(prefs.getBoolean("emergency_red_background", false));
-        redBackground.setOnCheckedChangeListener((view, enabled) ->
-            prefs.edit().putBoolean("emergency_red_background", enabled).apply());
-        emergency.addView(redBackground);
         emergency.addView(button(getString(R.string.emergency_test), this::showEmergencyTest));
         emergency.addView(button(getString(R.string.emergency_setup), this::editEmergency));
         emergency.addView(button(getString(R.string.emergency_pick_pdf), this::pickEmergencyPdf));
@@ -1078,17 +1301,34 @@ public final class Home extends Activity {
                 showAdmin();
             }));
         }
-        system.addView(button(getString(R.string.ui_alle_apps_50), () -> chooseApp(getString(R.string.ui_app_offnen_51), app ->
-            open(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
-                .setComponent(component(app)), getString(R.string.ui_diese_app_ist_nicht_verfugbar_9)))));
+        system.addView(button(getString(R.string.ui_alle_apps_50), this::showAllApps));
         system.addView(button(getString(R.string.ui_ruhemodus_freigeben_52), () -> open(
             new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS), getString(R.string.ui_einstellung_nicht_verfugbar_53))));
         system.addView(button(getString(R.string.ui_bildschirmvergro_erung_einrichten_54), () -> open(
             new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS), getString(R.string.ui_einstellung_nicht_verfugbar_53))));
         styleSettingsButtons(home);
+        styleSettingsButtons(header);
+        for (int i = 0; i < header.getChildCount(); i++) {
+            View control = header.getChildAt(i);
+            if (control instanceof Button && control.getTag() instanceof Symbol) {
+                updateHeaderColorButton((Button) control, (Symbol) control.getTag());
+            }
+        }
         styleSettingsButtons(system);
         styleSettingsButtons(emergency);
         controls.addView(button(getString(R.string.about), this::showAbout));
+    }
+
+    private Switch headerVisibilitySwitch(Symbol symbol) {
+        Switch visible = new Switch(this);
+        visible.setText(getString(R.string.header_show_symbol, getString(symbol.title)));
+        visible.setTextColor(foreground());
+        visible.setTextSize(19);
+        visible.setMinHeight(dp(56));
+        visible.setChecked(headerVisible(symbol));
+        visible.setOnCheckedChangeListener((view, enabled) ->
+            prefs.edit().putBoolean(symbol.visibilityPreference(), enabled).apply());
+        return visible;
     }
 
     private LinearLayout settingsGroup(LinearLayout parent, int title, int pastel) {
@@ -1108,8 +1348,10 @@ public final class Home extends Activity {
         header.setTextSize(19);
         header.setMinHeight(dp(56));
         header.setTextColor(BLACK);
+        Theme theme = currentTheme();
+        int sectionColor = theme == Theme.MONO || theme == Theme.CONTRAST ? theme.colorAt(0) : pastel;
         header.setBackground(new RippleDrawable(
-            android.content.res.ColorStateList.valueOf(0x33000000), rounded(pastel), null));
+            android.content.res.ColorStateList.valueOf(0x33000000), rounded(sectionColor), null));
         header.setOnClickListener(view -> {
             boolean expand = content.getVisibility() == View.GONE;
             content.setVisibility(expand ? View.VISIBLE : View.GONE);
@@ -1135,6 +1377,180 @@ public final class Home extends Activity {
             LinearLayout.LayoutParams layout = (LinearLayout.LayoutParams) control.getLayoutParams();
             layout.topMargin = dp(6);
         }
+    }
+
+    private void reorderHeader() {
+        List<Symbol> order = headerOrder();
+        Map<Symbol, Boolean> visibility = new EnumMap<>(Symbol.class);
+        for (Symbol symbol : order) visibility.put(symbol, headerVisible(symbol));
+        LinearLayout rows = emergencyContent();
+        populateHeaderOrder(rows, order, visibility);
+        dialog(new AlertDialog.Builder(this).setTitle(R.string.header_order)
+            .setView(emergencyScroll(rows)).setNegativeButton(android.R.string.cancel, null)
+            .setPositiveButton(R.string.ui_speichern_93, (d, which) -> {
+                List<String> names = new ArrayList<>();
+                SharedPreferences.Editor changes = prefs.edit();
+                for (Symbol symbol : order) {
+                    names.add(symbol.name());
+                    changes.putBoolean(symbol.visibilityPreference(), visibility.get(symbol));
+                }
+                changes.putString("header_order", TextUtils.join(",", names)).apply();
+                showAdmin();
+            }).create());
+    }
+
+    private void populateHeaderOrder(LinearLayout rows, List<Symbol> order, Map<Symbol, Boolean> visibility) {
+        rows.removeAllViews();
+        for (int i = 0; i < order.size(); i++) {
+            int position = i;
+            Symbol symbol = order.get(i);
+            String name = getString(symbol.title);
+            LinearLayout row = new LinearLayout(this);
+            row.setGravity(Gravity.CENTER_VERTICAL);
+            Switch visible = new Switch(this);
+            visible.setText((i + 1) + ". " + name);
+            visible.setTextSize(19);
+            visible.setMinHeight(dp(56));
+            visible.setChecked(visibility.get(symbol));
+            visible.setOnCheckedChangeListener((view, checked) -> visibility.put(symbol, checked));
+            row.addView(visible, new LinearLayout.LayoutParams(0, -2, 1));
+            Button up = button("↑", () -> moveHeaderSymbol(rows, order, visibility, position, -1));
+            up.setContentDescription(getString(R.string.header_move_up, name));
+            up.setEnabled(i > 0);
+            Button down = button("↓", () -> moveHeaderSymbol(rows, order, visibility, position, 1));
+            down.setContentDescription(getString(R.string.header_move_down, name));
+            down.setEnabled(i < order.size() - 1);
+            row.addView(up, new LinearLayout.LayoutParams(dp(56), -2));
+            row.addView(down, new LinearLayout.LayoutParams(dp(56), -2));
+            rows.addView(row);
+        }
+    }
+
+    private void moveHeaderSymbol(LinearLayout rows, List<Symbol> order, Map<Symbol, Boolean> visibility,
+                                  int position, int direction) {
+        int next = position + direction;
+        Collections.swap(order, position, next);
+        populateHeaderOrder(rows, order, visibility);
+        LinearLayout moved = (LinearLayout) rows.getChildAt(next);
+        View control = moved.getChildAt(direction < 0 && next > 0 || next == order.size() - 1 ? 1 : 2);
+        control.requestFocus();
+    }
+
+    private void chooseTheme() {
+        LinearLayout content = emergencyContent();
+        RadioGroup options = new RadioGroup(this);
+        Theme[] themes = Theme.values();
+        for (Theme theme : themes) {
+            RadioButton choice = new RadioButton(this);
+            choice.setId(theme.ordinal() + 1);
+            choice.setText(theme.title);
+            choice.setTextSize(19);
+            choice.setMinHeight(dp(48));
+            options.addView(choice);
+        }
+        content.addView(options);
+        content.addView(text(getString(R.string.theme_preview), 19));
+        LinearLayout preview = column();
+        preview.setPadding(dp(6), dp(10), dp(6), dp(10));
+        content.addView(preview);
+        options.setOnCheckedChangeListener((group, id) -> previewTheme(preview, themes[id - 1]));
+        options.check(currentTheme().ordinal() + 1);
+        content.addView(text(getString(R.string.theme_custom_note), 16));
+        dialog(new AlertDialog.Builder(this).setTitle(R.string.design_themes)
+            .setView(emergencyScroll(content)).setNegativeButton(android.R.string.cancel, null)
+            .setPositiveButton(R.string.ui_speichern_93, (d, which) -> {
+                Theme chosen = themes[options.getCheckedRadioButtonId() - 1];
+                if (chosen == currentTheme()) return;
+                boolean wasLight = lightAppearance();
+                prefs.edit().putString("design_theme", chosen.name()).apply();
+                if (wasLight != lightAppearance()) recreate();
+                else showHome();
+            }).create());
+    }
+
+    private void previewTheme(LinearLayout preview, Theme theme) {
+        preview.removeAllViews();
+        int surface = theme == Theme.CUSTOM
+            ? (prefs.getBoolean("light_appearance", false) ? WHITE : BLACK) : theme.surface;
+        preview.setBackground(rounded(surface));
+        LinearLayout row = null;
+        for (int i = 0; i < Math.min(4, tiles.length()); i++) {
+            if (i % 2 == 0) {
+                row = new LinearLayout(this);
+                preview.addView(row);
+            }
+            JSONObject tile = tiles.optJSONObject(i);
+            int color = theme == Theme.CUSTOM ? tile.optInt("color", BLUE) : theme.colorAt(i);
+            TextView sample = text(tile.optString("label"), 16);
+            sample.setGravity(Gravity.CENTER);
+            sample.setMinHeight(dp(64));
+            sample.setTextColor(contrastingInk(color));
+            sample.setBackground(rounded(color));
+            LinearLayout.LayoutParams size = new LinearLayout.LayoutParams(0, -2, 1);
+            size.setMargins(dp(3), dp(3), dp(3), dp(3));
+            row.addView(sample, size);
+        }
+    }
+
+    private void updateHeaderColorButton(Button button, Symbol symbol) {
+        String key = symbol.colorPreference();
+        boolean legacyRed = symbol == Symbol.EMERGENCY && !prefs.contains(key)
+            && prefs.getBoolean("emergency_red_background", false);
+        boolean custom = prefs.contains(key) || legacyRed;
+        int standard = lightAppearance() ? WHITE : 0xff303030;
+        int color = prefs.getInt(key, legacyRed ? 0xffa92530 : standard);
+        int ink = custom ? contrastingInk(color) : foreground();
+        String name = getString(R.string.symbol_default_color);
+        if (custom) {
+            String[] names = getResources().getStringArray(R.array.symbol_palette_names);
+            name = legacyRed ? names[2] : String.format(Locale.ROOT, "#%06X", color & 0xffffff);
+            for (int i = 0; i < PALETTE.length; i++) {
+                if (Color.parseColor(PALETTE[i]) == color) {
+                    name = names[i];
+                    break;
+                }
+            }
+        }
+        String label = getString(R.string.header_symbol_color, getString(symbol.title));
+        button.setText(label);
+        button.setContentDescription(label + ", " + name);
+        button.setTextColor(ink);
+        button.setPadding(dp(12), dp(6), dp(12), dp(6));
+        button.setBackground(new RippleDrawable(
+            android.content.res.ColorStateList.valueOf((ink & 0x00ffffff) | 0x33000000), rounded(color), null));
+    }
+
+    private void chooseHeaderColor(Symbol symbol, Runnable onColorChanged) {
+        String key = symbol.colorPreference();
+        LinearLayout options = emergencyContent();
+        AlertDialog picker = new AlertDialog.Builder(this).setTitle(symbol.title)
+            .setView(emergencyScroll(options))
+            .setNeutralButton(R.string.symbol_default_color, (dialog, which) -> {
+                SharedPreferences.Editor changes = prefs.edit().remove(key);
+                if (symbol == Symbol.EMERGENCY) changes.remove("emergency_red_background");
+                changes.apply();
+                onColorChanged.run();
+            })
+            .setNegativeButton(android.R.string.cancel, null).create();
+        String[] names = getResources().getStringArray(R.array.symbol_palette_names);
+        for (int i = 0; i < PALETTE.length; i++) {
+            int color = Color.parseColor(PALETTE[i]);
+            Button choice = button(names[i], () -> {
+                prefs.edit().putInt(key, color).apply();
+                onColorChanged.run();
+                picker.dismiss();
+            });
+            choice.setTextColor(contrastingInk(color));
+            choice.setBackground(rounded(color));
+            Drawable icon = symbolDrawable(symbol, color, false);
+            icon.setBounds(0, 0, dp(28), dp(28));
+            choice.setCompoundDrawablesRelative(icon, null, null, null);
+            choice.setPadding(dp(12), 0, dp(12), 0);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, -2);
+            params.bottomMargin = dp(6);
+            options.addView(choice, params);
+        }
+        dialog(picker);
     }
 
     private void chooseFirstPageLayout() {
@@ -1324,15 +1740,68 @@ public final class Home extends Activity {
         return new ComponentName(app.activityInfo.packageName, app.activityInfo.name);
     }
 
+    private void showAllApps() {
+        chooseApp(getString(R.string.ui_alle_apps_50), app ->
+            open(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
+                .setComponent(component(app)), getString(R.string.ui_diese_app_ist_nicht_verfugbar_9)));
+    }
+
     private void chooseApp(String title, AppSelection selection) {
         List<ResolveInfo> apps = new ArrayList<>(getPackageManager().queryIntentActivities(
             new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER), 0));
         apps.removeIf(app -> app.activityInfo.packageName.equals(getPackageName()));
-        apps.sort(Comparator.comparing(app -> app.loadLabel(getPackageManager()).toString(),
-            java.text.Collator.getInstance(getResources().getConfiguration().getLocales().get(0))));
-        String[] labels = apps.stream().map(app -> app.loadLabel(getPackageManager()).toString()).toArray(String[]::new);
-        dialog(new AlertDialog.Builder(this).setTitle(title).setItems(labels, (d, i) -> selection.selected(apps.get(i)))
-            .setNegativeButton(getString(R.string.ui_zuruck_58), null).create());
+        Map<ResolveInfo, String> labels = new HashMap<>();
+        for (ResolveInfo app : apps) labels.put(app, app.loadLabel(getPackageManager()).toString());
+        Locale language = getResources().getConfiguration().getLocales().get(0);
+        apps.sort(Comparator.comparing(labels::get, java.text.Collator.getInstance(language)));
+        LinearLayout content = column();
+        content.setPadding(dp(16), 0, dp(16), 0);
+        content.setFocusableInTouchMode(true);
+        EditText search = field(getString(R.string.app_search), InputType.TYPE_CLASS_TEXT);
+        search.setContentDescription(getString(R.string.app_search));
+        content.addView(search);
+        ListView list = new ListView(this);
+        TextView empty = text(getString(R.string.app_search_empty), 20);
+        empty.setPadding(0, dp(10), 0, dp(10));
+        content.addView(empty);
+        content.addView(list, new LinearLayout.LayoutParams(-1,
+            dp(Math.min(420, getResources().getConfiguration().screenHeightDp / 2))));
+        list.setEmptyView(empty);
+        ArrayAdapter<ResolveInfo> matches = new ArrayAdapter<ResolveInfo>(this,
+                android.R.layout.simple_list_item_1, new ArrayList<>(apps)) {
+            @Override public View getView(int position, View recycled, ViewGroup parent) {
+                TextView row = (TextView) super.getView(position, recycled, parent);
+                row.setText(labels.get(getItem(position)));
+                row.setTextSize(24);
+                row.setMinHeight(dp(56));
+                row.setPadding(dp(8), dp(8), dp(8), dp(8));
+                return row;
+            }
+        };
+        list.setAdapter(matches);
+        search.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String query = s.toString().trim().toLowerCase(language);
+                matches.setNotifyOnChange(false);
+                matches.clear();
+                for (ResolveInfo app : apps) {
+                    if (labels.get(app).toLowerCase(language).contains(query)) matches.add(app);
+                }
+                matches.notifyDataSetChanged();
+                list.setSelection(0);
+            }
+            @Override public void afterTextChanged(Editable s) { }
+        });
+        AlertDialog picker = new AlertDialog.Builder(this).setTitle(title).setView(content)
+            .setNegativeButton(getString(R.string.ui_zuruck_58), null).create();
+        list.setOnItemClickListener((parent, view, position, id) -> {
+            ResolveInfo app = matches.getItem(position);
+            picker.dismiss();
+            selection.selected(app);
+        });
+        content.requestFocus();
+        dialog(picker);
     }
 
     private void chooseContact(EditText name, EditText phone, EditText link, AlertDialog editor,
@@ -1532,14 +2001,283 @@ public final class Home extends Activity {
 
     private void persistTiles() {
         prefs.edit().putString("tiles", tiles.toString()).apply();
+        releaseUnusedTileFiles();
+    }
+
+    private void releaseUnusedTileFiles() {
         Set<String> retained = new HashSet<>();
-        for (int i = 0; i < tiles.length(); i++) retained.add(tiles.optJSONObject(i).optString("file"));
+        retained.add(prefs.getString("emergency_pdf", ""));
+        retainTileFiles(tiles, retained);
+        JSONObject profiles = savedProfiles();
+        for (Iterator<String> keys = profiles.keys(); keys.hasNext();) {
+            JSONObject profile = profiles.optJSONObject(keys.next());
+            if (profile != null) retainTileFiles(profile.optJSONArray("tiles"), retained);
+        }
         for (UriPermission grant : getContentResolver().getPersistedUriPermissions()) {
             if (grant.isReadPermission() && !retained.contains(grant.getUri().toString())) {
                 try {
                     getContentResolver().releasePersistableUriPermission(grant.getUri(), Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 } catch (SecurityException ignored) { }
             }
+        }
+    }
+
+    private JSONObject savedProfiles() {
+        try {
+            return new JSONObject(prefs.getString("layout_profiles", "{}"));
+        } catch (JSONException e) {
+            return new JSONObject();
+        }
+    }
+
+    private JSONObject layoutSnapshot() throws JSONException {
+        return new JSONObject().put("format", "StartPerTap-layout").put("version", 1)
+            .put("tiles", new JSONArray(tiles.toString())).put("firstPageSize", firstPageSize()).put("localFiles", 0);
+    }
+
+    private JSONObject portableLayout(JSONObject snapshot) throws JSONException {
+        JSONObject portable = new JSONObject(snapshot.toString());
+        JSONArray entries = portable.getJSONArray("tiles");
+        int files = 0;
+        for (int i = 0; i < entries.length(); i++) {
+            JSONObject entry = entries.getJSONObject(i);
+            if (!entry.optString("file").isEmpty()) files++;
+            entry.remove("file");
+            entry.remove("fileType");
+        }
+        return portable.put("localFiles", files);
+    }
+
+    private void showProfiles() {
+        LinearLayout options = emergencyContent();
+        AlertDialog menu = new AlertDialog.Builder(this).setTitle(R.string.layout_profiles)
+            .setView(emergencyScroll(options)).setNegativeButton(R.string.ui_zuruck_58, null).create();
+        options.addView(button(getString(R.string.layout_save_profile), () -> {
+            menu.dismiss();
+            nameProfile();
+        }));
+        options.addView(button(getString(R.string.layout_choose_profile), () -> {
+            menu.dismiss();
+            chooseProfile(false);
+        }));
+        options.addView(button(getString(R.string.layout_export), () -> {
+            menu.dismiss();
+            pickLayoutFile(true, null);
+        }));
+        options.addView(button(getString(R.string.layout_export_profile), () -> {
+            menu.dismiss();
+            chooseProfile(true);
+        }));
+        options.addView(button(getString(R.string.layout_import), () -> {
+            menu.dismiss();
+            pickLayoutFile(false, null);
+        }));
+        dialog(menu);
+    }
+
+    private void nameProfile() {
+        LinearLayout content = emergencyContent();
+        EditText name = field(getString(R.string.layout_profile_name), InputType.TYPE_CLASS_TEXT);
+        name.setFilters(new InputFilter[]{new InputFilter.LengthFilter(40)});
+        content.addView(name);
+        AlertDialog editor = new AlertDialog.Builder(this).setTitle(R.string.layout_save_profile)
+            .setView(content).setNegativeButton(android.R.string.cancel, null)
+            .setPositiveButton(R.string.ui_speichern_93, null).create();
+        dialog(editor);
+        editor.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(view -> {
+            String key = name.getText().toString().trim();
+            if (key.isEmpty()) {
+                name.setError(getString(R.string.layout_profile_name));
+                return;
+            }
+            JSONObject profiles = savedProfiles();
+            if (profiles.has(key)) {
+                editor.dismiss();
+                dialog(new AlertDialog.Builder(this).setTitle(R.string.layout_replace)
+                    .setMessage(key).setNegativeButton(android.R.string.cancel, null)
+                    .setPositiveButton(R.string.ui_speichern_93, (d, which) -> saveProfile(key)).create());
+            } else if (profiles.length() >= MAX_PROFILES) {
+                name.setError(getString(R.string.layout_profile_limit, MAX_PROFILES));
+            } else {
+                editor.dismiss();
+                saveProfile(key);
+            }
+        });
+    }
+
+    private void saveProfile(String name) {
+        try {
+            JSONObject profiles = savedProfiles();
+            profiles.put(name, layoutSnapshot());
+            prefs.edit().putString("layout_profiles", profiles.toString()).apply();
+            releaseUnusedTileFiles();
+            notice(getString(R.string.layout_saved));
+        } catch (JSONException e) {
+            notice(getString(R.string.layout_error));
+        }
+    }
+
+    private void chooseProfile(boolean export) {
+        JSONObject profiles = savedProfiles();
+        if (profiles.length() == 0) {
+            notice(getString(R.string.layout_no_profiles));
+            return;
+        }
+        List<String> names = new ArrayList<>();
+        profiles.keys().forEachRemaining(names::add);
+        names.sort(java.text.Collator.getInstance(getResources().getConfiguration().getLocales().get(0)));
+        dialog(new AlertDialog.Builder(this).setTitle(export ? R.string.layout_export_profile : R.string.layout_choose_profile)
+            .setItems(names.toArray(new String[0]), (d, index) -> {
+                String name = names.get(index);
+                JSONObject snapshot = profiles.optJSONObject(name);
+                if (snapshot != null) {
+                    if (export) pickLayoutFile(true, name);
+                    else previewLayout(snapshot, name);
+                }
+            })
+            .setNegativeButton(android.R.string.cancel, null).create());
+    }
+
+    private void previewLayout(JSONObject snapshot, String profileName) {
+        JSONArray entries = snapshot.optJSONArray("tiles");
+        if (entries == null) return;
+        LinearLayout content = emergencyContent();
+        content.addView(text(getString(R.string.layout_replace_current), 19));
+        int firstPage = Math.min(entries.length(), snapshot.optInt("firstPageSize", PAGE_SIZE));
+        content.addView(text(getString(R.string.first_page_preview, firstPage, entries.length()), 19));
+        int files = snapshot.optInt("localFiles");
+        if (files > 0) content.addView(text(getString(R.string.layout_reselect_files, files), 19));
+        for (int i = 0; i < entries.length(); i++) {
+            JSONObject entry = entries.optJSONObject(i);
+            String name = entry.optString("label");
+            if (entry.optBoolean("missingApp") || (!entry.optString("app").isEmpty()
+                    && appIcon(entry.optString("app")) == null)) {
+                name = getString(R.string.layout_missing_app, name);
+            }
+            content.addView(text(name, 20));
+        }
+        AlertDialog.Builder preview = new AlertDialog.Builder(this)
+            .setTitle(profileName == null ? getString(R.string.layout_import) : profileName)
+            .setView(emergencyScroll(content)).setNegativeButton(android.R.string.cancel, null)
+            .setPositiveButton(R.string.layout_apply, (d, which) -> {
+                tiles = entries;
+                prefs.edit().putString("tiles", tiles.toString())
+                    .putInt("first_page_size", snapshot.optInt("firstPageSize", PAGE_SIZE)).apply();
+                releaseUnusedTileFiles();
+                homePage = 0;
+                showHome();
+            });
+        if (profileName != null) preview.setNeutralButton(R.string.layout_delete, (d, which) ->
+            dialog(new AlertDialog.Builder(this).setTitle(R.string.layout_delete).setMessage(profileName)
+                .setNegativeButton(android.R.string.cancel, null)
+                .setPositiveButton(R.string.layout_delete, (confirmation, choice) -> {
+                    JSONObject profiles = savedProfiles();
+                    profiles.remove(profileName);
+                    prefs.edit().putString("layout_profiles", profiles.toString()).apply();
+                    releaseUnusedTileFiles();
+                }).create()));
+        dialog(preview.create());
+    }
+
+    private void pickLayoutFile(boolean export, String profile) {
+        Intent picker = new Intent(export ? Intent.ACTION_CREATE_DOCUMENT : Intent.ACTION_OPEN_DOCUMENT)
+            .addCategory(Intent.CATEGORY_OPENABLE).setType(export ? "application/json" : "*/*");
+        if (export) {
+            pendingExportProfile = profile;
+            String suffix = profile == null ? "Sicherung" : profile.replaceAll("[^\\p{L}\\p{N} _-]", "_");
+            picker.putExtra(Intent.EXTRA_TITLE, "StartPerTap-" + suffix + ".json");
+        }
+        try {
+            startActivityForResult(picker, export ? EXPORT_LAYOUT : IMPORT_LAYOUT);
+        } catch (ActivityNotFoundException e) {
+            if (export) pendingExportProfile = null;
+            notice(getString(R.string.layout_error));
+        }
+    }
+
+    private void transferLayout(int request, Uri uri, String profile) {
+        try {
+            if (request == EXPORT_LAYOUT) {
+                JSONObject snapshot = profile == null ? layoutSnapshot() : savedProfiles().getJSONObject(profile);
+                byte[] data = portableLayout(snapshot).toString(2).getBytes(StandardCharsets.UTF_8);
+                if (data.length > MAX_BACKUP_BYTES) throw new IOException();
+                try (OutputStream output = getContentResolver().openOutputStream(uri, "wt")) {
+                    if (output == null) throw new IOException();
+                    output.write(data);
+                }
+                notice(getString(R.string.layout_saved));
+                return;
+            }
+            try (InputStream input = getContentResolver().openInputStream(uri);
+                 ByteArrayOutputStream bytes = new ByteArrayOutputStream()) {
+                if (input == null) throw new IOException();
+                byte[] buffer = new byte[4096];
+                int read;
+                while ((read = input.read(buffer)) != -1) {
+                    if (bytes.size() + read > MAX_BACKUP_BYTES) throw new IOException();
+                    bytes.write(buffer, 0, read);
+                }
+                JSONObject snapshot = new JSONObject(new String(bytes.toByteArray(), StandardCharsets.UTF_8));
+                previewLayout(validateBackup(snapshot), null);
+            }
+        } catch (IOException | JSONException | IllegalArgumentException | SecurityException e) {
+            notice(getString(R.string.layout_error));
+        }
+    }
+
+    private JSONObject validateBackup(JSONObject snapshot) throws JSONException {
+        JSONArray entries = snapshot.getJSONArray("tiles");
+        int capacity = snapshot.getInt("firstPageSize");
+        if (!"StartPerTap-layout".equals(snapshot.optString("format")) || snapshot.optInt("version") != 1
+                || entries.length() < 2 || entries.length() > MAX_TILES
+                || (capacity != 2 && capacity != 4 && capacity != 6 && capacity != PAGE_SIZE)) {
+            throw new JSONException("Unsupported layout");
+        }
+        Set<String> launchable = new HashSet<>();
+        for (ResolveInfo app : getPackageManager().queryIntentActivities(
+                new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER), 0)) {
+            if (!app.activityInfo.packageName.equals(getPackageName())) {
+                launchable.add(component(app).flattenToString());
+            }
+        }
+        JSONArray clean = new JSONArray();
+        for (int i = 0; i < entries.length(); i++) {
+            JSONObject entry = entries.getJSONObject(i);
+            String label = entry.getString("label");
+            String url = entry.optString("url");
+            String phone = entry.optString("phone");
+            String app = entry.optString("app");
+            Uri link = Uri.parse(url);
+            if (label.trim().isEmpty() || label.length() > 256 || url.length() > 4096
+                    || (!url.isEmpty() && (!"https".equalsIgnoreCase(link.getScheme())
+                        || TextUtils.isEmpty(link.getHost()) || url.chars().anyMatch(Character::isWhitespace)))
+                    || (!phone.isEmpty() && !phone.matches("\\+?[0-9]{3,20}"))
+                    || (!phone.isEmpty() && !url.isEmpty())) {
+                throw new JSONException("Invalid tile");
+            }
+            ComponentName target = ComponentName.unflattenFromString(app);
+            String canonical = target == null ? "" : target.flattenToString();
+            boolean missing = !app.isEmpty() && !launchable.contains(canonical);
+            JSONObject value = tile(label, missing ? "" : canonical, url, entry.optInt("color", BLUE) | 0xff000000);
+            value.put("phone", phone).put("whatsappCall", entry.optBoolean("whatsappCall")
+                && !whatsappLinkNumber(url).isEmpty()).put("missingApp", missing || entry.optBoolean("missingApp"));
+            int labelSize = entry.optInt("labelSize");
+            for (int allowed : TILE_LABEL_SIZES) {
+                if (allowed == labelSize) value.put("labelSize", labelSize);
+            }
+            Symbol symbol = tileSymbol(entry);
+            if (symbol != null) value.put("symbol", symbol.name());
+            clean.put(value);
+        }
+        return snapshot.put("tiles", clean).put("localFiles",
+            Math.max(0, Math.min(entries.length(), snapshot.optInt("localFiles"))));
+    }
+
+    private void retainTileFiles(JSONArray entries, Set<String> retained) {
+        if (entries == null) return;
+        for (int i = 0; i < entries.length(); i++) {
+            JSONObject entry = entries.optJSONObject(i);
+            if (entry != null) retained.add(entry.optString("file"));
         }
     }
 
@@ -1570,14 +2308,58 @@ public final class Home extends Activity {
         phone.setText(original.optString("phone"));
         EditText color = field(getString(R.string.ui_farbe_als_rrggbb_81), InputType.TYPE_CLASS_TEXT);
         color.setText(String.format(Locale.ROOT, "#%06X", original.optInt("color") & 0xffffff));
-        TextView preview = text(getString(R.string.ui_farbvorschau_82), 20);
+        Spinner labelSize = new Spinner(this, Spinner.MODE_DIALOG);
+        labelSize.setPromptId(R.string.tile_label_size);
+        labelSize.setMinimumHeight(dp(48));
+        String[] sizes = new String[TILE_LABEL_SIZES.length];
+        sizes[0] = getString(R.string.tile_label_size_auto);
+        int selectedSize = 0;
+        for (int i = 1; i < sizes.length; i++) {
+            sizes[i] = getString(R.string.tile_label_size_value, TILE_LABEL_SIZES[i]);
+            if (TILE_LABEL_SIZES[i] == original.optInt("labelSize")) selectedSize = i;
+        }
+        ArrayAdapter<String> sizeOptions = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, sizes);
+        sizeOptions.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        labelSize.setAdapter(sizeOptions);
+        labelSize.setSelection(selectedSize);
+        TextView sizeLabel = text(getString(R.string.tile_label_size), 19);
+        labelSize.setId(View.generateViewId());
+        sizeLabel.setLabelFor(labelSize.getId());
+        Symbol[] symbols = {Symbol.APPS, Symbol.QUIET, Symbol.EMERGENCY, Symbol.LOCK};
+        Spinner displaySymbol = new Spinner(this, Spinner.MODE_DIALOG);
+        displaySymbol.setPromptId(R.string.symbol_tile_setting);
+        displaySymbol.setMinimumHeight(dp(48));
+        String[] symbolOptions = new String[symbols.length + 1];
+        symbolOptions[0] = getString(R.string.symbol_tile_none);
+        int selectedSymbol = 0;
+        Symbol existingSymbol = tileSymbol(original);
+        for (int i = 0; i < symbols.length; i++) {
+            symbolOptions[i + 1] = getString(symbols[i].title);
+            if (symbols[i] == existingSymbol) selectedSymbol = i + 1;
+        }
+        ArrayAdapter<String> symbolAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, symbolOptions);
+        symbolAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        displaySymbol.setAdapter(symbolAdapter);
+        displaySymbol.setSelection(selectedSymbol);
+        TextView symbolLabel = text(getString(R.string.symbol_tile_setting), 19);
+        displaySymbol.setId(View.generateViewId());
+        symbolLabel.setLabelFor(displaySymbol.getId());
+        TextView preview = text("", 26);
         preview.setGravity(Gravity.CENTER);
         preview.setPadding(0, dp(10), 0, dp(10));
         Runnable refresh = () -> {
+            String label = name.getText().toString().trim();
+            preview.setText(label.isEmpty() ? getString(R.string.ui_farbvorschau_82) : label);
+            int size = TILE_LABEL_SIZES[labelSize.getSelectedItemPosition()];
+            preview.setTextSize(size == 0 ? 26 : size);
             try {
                 int value = parseColor(color.getText().toString());
                 preview.setBackground(rounded(value));
-                preview.setTextColor(Color.luminance(value) >= 0.179f ? BLACK : WHITE);
+                preview.setTextColor(contrastingInk(value));
+                int position = displaySymbol.getSelectedItemPosition();
+                Drawable icon = position > 0 ? symbolDrawable(symbols[position - 1], value, false) : null;
+                if (icon != null) icon.setBounds(0, 0, dp(56), dp(56));
+                preview.setCompoundDrawables(null, icon, null, null);
             } catch (IllegalArgumentException ignored) { }
         };
         color.addTextChangedListener(new TextWatcher() {
@@ -1585,6 +2367,19 @@ public final class Home extends Activity {
             public void onTextChanged(CharSequence s, int start, int before, int count) { refresh.run(); }
             public void afterTextChanged(Editable s) {}
         });
+        name.addTextChangedListener(new TextWatcher() {
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) { refresh.run(); }
+            public void afterTextChanged(Editable s) {}
+        });
+        AdapterView.OnItemSelectedListener refreshSelection = new AdapterView.OnItemSelectedListener() {
+            @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                refresh.run();
+            }
+            @Override public void onNothingSelected(AdapterView<?> parent) { }
+        };
+        labelSize.setOnItemSelectedListener(refreshSelection);
+        displaySymbol.setOnItemSelectedListener(refreshSelection);
         AlertDialog[] editor = new AlertDialog[1];
         Button select = button(app[0].isEmpty() ? getString(R.string.ui_app_auswahlen_83) : getString(R.string.ui_app_wechseln_84), () -> {
             editor[0].hide();
@@ -1597,6 +2392,11 @@ public final class Home extends Activity {
             returnToEditor(editor[0]);
         });
         fields.addView(name);
+        fields.addView(sizeLabel);
+        fields.addView(labelSize);
+        fields.addView(symbolLabel);
+        fields.addView(displaySymbol);
+        fields.addView(preview);
         fields.addView(select);
         fields.addView(button(getString(R.string.media_choose), () -> {
             int chosenColor;
@@ -1606,7 +2406,10 @@ public final class Home extends Activity {
                 color.setError(getString(R.string.ui_beispiel_1558ca_98));
                 return;
             }
-            pickMedia(index, name.getText().toString().trim(), chosenColor);
+            pickMedia(index, name.getText().toString().trim(), chosenColor,
+                TILE_LABEL_SIZES[labelSize.getSelectedItemPosition()],
+                displaySymbol.getSelectedItemPosition() > 0
+                    ? symbols[displaySymbol.getSelectedItemPosition() - 1].name() : "");
         }));
         fields.addView(button(getString(R.string.ui_whatsapp_anruflink_einfugen_85),
             () -> editMeetingLink(true, name, link, phone, editor[0])));
@@ -1632,7 +2435,6 @@ public final class Home extends Activity {
             palette.addView(chip, space);
         }
         fields.addView(palette);
-        fields.addView(preview);
         refresh.run();
         if (existing) {
             if (index > 0) fields.addView(button(getString(R.string.ui_eine_position_nach_vorne_89), () -> move(editor[0], index, index - 1)));
@@ -1650,6 +2452,9 @@ public final class Home extends Activity {
         dialog(editor[0]);
         editor[0].getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
             String label = name.getText().toString().trim();
+            int symbolPosition = displaySymbol.getSelectedItemPosition();
+            Symbol symbol = symbolPosition > 0 ? symbols[symbolPosition - 1] : null;
+            if (label.isEmpty() && symbol != null) label = getString(symbol.title);
             String url = link.getText().toString().trim();
             String number = cleanPhone(phone.getText().toString());
             if (label.isEmpty()) {
@@ -1686,6 +2491,8 @@ public final class Home extends Activity {
                     updated.put("fileType", original.optString("fileType"));
                 }
                 updated.put("phone", number);
+                updated.put("labelSize", TILE_LABEL_SIZES[labelSize.getSelectedItemPosition()]);
+                if (symbol != null) updated.put("symbol", symbol.name());
                 updated.put("whatsappCall", direct.isChecked() && !whatsappLinkNumber(url).isEmpty());
             } catch (JSONException e) {
                 throw new IllegalStateException(e);
