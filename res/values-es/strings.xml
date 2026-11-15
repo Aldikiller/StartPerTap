@@ -125,4 +125,57 @@
     <string name="first_page_standard">Estándar (hasta 16 mosaicos)</string>
     <string name="first_page_capacity">Hasta %1$d mosaicos</string>
     <string name="first_page_preview">Vista previa: %1$d de %2$d mosaicos en la primera página</string>
+    <string name="app_search">Buscar aplicaciones</string>
+    <string name="app_search_empty">No se encontraron aplicaciones</string>
+    <string name="tile_label_size">Tamaño del texto del mosaico</string>
+    <string name="tile_label_size_auto">Automático</string>
+    <string name="header_settings">Barra superior</string>
+    <string name="header_show_symbol">Mostrar %1$s</string>
+    <string name="header_symbol_color">Color de %1$s</string>
+    <string name="symbol_wifi">Wi-Fi</string>
+    <string name="symbol_quiet">Modo silencioso</string>
+    <string name="symbol_lock">Candado</string>
+    <string name="symbol_default_color">Color predeterminado</string>
+    <string name="symbol_tile_setting">Símbolo visual (sin acción)</string>
+    <string name="symbol_tile_none">Ninguno</string>
+    <string name="symbol_tile_description">%1$s, símbolo de %2$s, solo visual</string>
+    <string-array name="symbol_palette_names">
+        <item>Azul</item>
+        <item>Verde</item>
+        <item>Rojo</item>
+        <item>Morado</item>
+        <item>Naranja</item>
+        <item>Turquesa</item>
+        <item>Amarillo</item>
+        <item>Blanco</item>
+    </string-array>
+    <string name="layout_profiles">Perfiles y copia de seguridad</string>
+    <string name="layout_save_profile">Guardar diseño actual como perfil</string>
+    <string name="layout_choose_profile">Abrir un perfil guardado</string>
+    <string name="layout_export">Guardar copia de seguridad</string>
+    <string name="layout_export_profile">Exportar perfil guardado</string>
+    <string name="layout_import">Restaurar desde una copia de seguridad</string>
+    <string name="layout_profile_name">Nombre del perfil</string>
+    <string name="layout_replace">¿Reemplazar el perfil guardado?</string>
+    <string name="layout_profile_limit">Puedes guardar hasta %1$d perfiles.</string>
+    <string name="layout_saved">Diseño guardado.</string>
+    <string name="layout_error">No se pudo leer ni guardar el diseño.</string>
+    <string name="layout_no_profiles">Todavía no hay perfiles guardados.</string>
+    <string name="layout_replace_current">Se reemplazarán los mosaicos actuales y el diseño de la primera página.</string>
+    <string name="layout_reselect_files">Vuelve a seleccionar los archivos locales de %1$d mosaico(s).</string>
+    <string name="layout_missing_app">%1$s (aplicación no disponible)</string>
+    <string name="layout_apply">Aplicar diseño</string>
+    <string name="layout_delete">Eliminar perfil</string>
+    <string name="device_settings">Ajustes del dispositivo</string>
+    <string name="header_order">Ordenar y mostrar símbolos</string>
+    <string name="launcher_settings_access">Menú de StartPerTap</string>
+    <string name="header_move_up">Mover %1$s hacia arriba</string>
+    <string name="header_move_down">Mover %1$s hacia abajo</string>
+    <string name="design_themes">Temas de diseño</string>
+    <string name="theme_current">Diseño actual</string>
+    <string name="theme_pastel">Pastel</string>
+    <string name="theme_contrast">Alto contraste</string>
+    <string name="theme_mono">Blanco y negro</string>
+    <string name="theme_preview">Vista previa de los colores</string>
+    <string name="theme_custom_note">Los temas definen los colores de los mosaicos y la barra superior. Elige Diseño actual para volver a ver tus colores.</string>
 </resources>
