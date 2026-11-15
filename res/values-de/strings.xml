@@ -114,4 +114,15 @@
     <string name="media_choose">Audio, Video oder PDF auswählen</string>
     <string name="media_file">Datei</string>
     <string name="media_unavailable">Datei nicht verfügbar oder keine passende App installiert.</string>
+    <string name="wifi_connected">WLAN verbunden</string>
+    <string name="wifi_disconnected">WLAN nicht verbunden</string>
+    <string name="wifi_confirm">WLAN-Einstellungen zum Ein- oder Ausschalten öffnen?</string>
+    <string name="wifi_open">WLAN öffnen</string>
+    <string name="wifi_unavailable">Die WLAN-Einstellungen sind nicht verfügbar.</string>
+    <string name="hide_navigation_bar">Navigationsleiste ausblenden</string>
+    <string name="reveal_navigation_bar">Vom unteren Bildschirmrand nach oben wischen, um die Leiste kurz einzublenden.</string>
+    <string name="first_page_layout">Layout der ersten Seite</string>
+    <string name="first_page_standard">Standard (bis zu 16 Kacheln)</string>
+    <string name="first_page_capacity">Bis zu %1$d Kacheln</string>
+    <string name="first_page_preview">Vorschau: %1$d von %2$d Kacheln auf der ersten Seite</string>
 </resources>
