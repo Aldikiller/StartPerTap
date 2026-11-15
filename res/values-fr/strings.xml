@@ -125,4 +125,57 @@
     <string name="first_page_standard">Standard (jusqu’à 16 tuiles)</string>
     <string name="first_page_capacity">Jusqu’à %1$d tuiles</string>
     <string name="first_page_preview">Aperçu : %1$d tuiles sur %2$d sur la première page</string>
+    <string name="app_search">Rechercher des applications</string>
+    <string name="app_search_empty">Aucune application trouvée</string>
+    <string name="tile_label_size">Taille du texte de la tuile</string>
+    <string name="tile_label_size_auto">Automatique</string>
+    <string name="header_settings">Barre supérieure</string>
+    <string name="header_show_symbol">Afficher %1$s</string>
+    <string name="header_symbol_color">Couleur pour %1$s</string>
+    <string name="symbol_wifi">Wi-Fi</string>
+    <string name="symbol_quiet">Mode silencieux</string>
+    <string name="symbol_lock">Cadenas</string>
+    <string name="symbol_default_color">Couleur par défaut</string>
+    <string name="symbol_tile_setting">Symbole visuel (sans action)</string>
+    <string name="symbol_tile_none">Aucun</string>
+    <string name="symbol_tile_description">%1$s, symbole %2$s, affichage seul</string>
+    <string-array name="symbol_palette_names">
+        <item>Bleu</item>
+        <item>Vert</item>
+        <item>Rouge</item>
+        <item>Violet</item>
+        <item>Orange</item>
+        <item>Turquoise</item>
+        <item>Jaune</item>
+        <item>Blanc</item>
+    </string-array>
+    <string name="layout_profiles">Profils et sauvegarde</string>
+    <string name="layout_save_profile">Enregistrer la disposition comme profil</string>
+    <string name="layout_choose_profile">Ouvrir un profil enregistré</string>
+    <string name="layout_export">Enregistrer une sauvegarde</string>
+    <string name="layout_export_profile">Exporter un profil enregistré</string>
+    <string name="layout_import">Restaurer depuis une sauvegarde</string>
+    <string name="layout_profile_name">Nom du profil</string>
+    <string name="layout_replace">Remplacer le profil enregistré ?</string>
+    <string name="layout_profile_limit">Vous pouvez enregistrer jusqu’à %1$d profils.</string>
+    <string name="layout_saved">Disposition enregistrée.</string>
+    <string name="layout_error">Impossible de lire ou de sauvegarder cette disposition.</string>
+    <string name="layout_no_profiles">Aucun profil enregistré pour le moment.</string>
+    <string name="layout_replace_current">Les tuiles actuelles et la disposition de la première page seront remplacées.</string>
+    <string name="layout_reselect_files">Sélectionnez à nouveau les fichiers locaux pour %1$d tuile(s).</string>
+    <string name="layout_missing_app">%1$s (application indisponible)</string>
+    <string name="layout_apply">Appliquer la disposition</string>
+    <string name="layout_delete">Supprimer le profil</string>
+    <string name="device_settings">Paramètres de l’appareil</string>
+    <string name="header_order">Organiser et afficher les symboles</string>
+    <string name="launcher_settings_access">Menu StartPerTap</string>
+    <string name="header_move_up">Monter %1$s</string>
+    <string name="header_move_down">Descendre %1$s</string>
+    <string name="design_themes">Thèmes</string>
+    <string name="theme_current">Design existant</string>
+    <string name="theme_pastel">Pastel</string>
+    <string name="theme_contrast">Contraste élevé</string>
+    <string name="theme_mono">Noir et blanc</string>
+    <string name="theme_preview">Aperçu des couleurs des tuiles</string>
+    <string name="theme_custom_note">Les thèmes définissent les couleurs des tuiles et de la barre supérieure. Choisissez Design existant pour retrouver vos couleurs.</string>
 </resources>
