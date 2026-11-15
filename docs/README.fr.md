@@ -21,15 +21,7 @@ Installez l’APK sur Android 10 ou une version ultérieure. Ouvrez StartPerTap 
 - Prévisualisez les thèmes pastel, contraste élevé et noir et blanc, ou conservez vos couleurs actuelles.
 - Enregistrez des profils nommés et exportez ou restaurez une sauvegarde JSON. Sélectionnez à nouveau les fichiers multimédias locaux après un changement d’appareil.
 
-## Nouveautés de la version 0.25
-
-- Choisissez jusqu’à 2, 4 ou 6 tuiles pour la première page et vérifiez l’aperçu avant d’enregistrer.
-- Le bouton Wi-Fi indique l’état de la connexion et demande confirmation avant d’ouvrir les réglages Android.
-- Vous pouvez masquer la barre de navigation et la réafficher brièvement en balayant depuis le bas.
-
-## Nouveautés de la version 0.24
-
-Les rubriques accueil et tuiles, système et accessibilité et urgence sont repliées au départ. Chacune a une couleur pastel distincte et des boutons arrondis.
+[Historique des modifications](CHANGELOG.fr.md)
 
 ## Informations d’urgence
 
@@ -47,7 +39,7 @@ Les vidéos présentent des maquettes. Les images ci-dessous sont de vraies capt
 
 <img src="StartPerTap-Pixel-Startseite.jpg" alt="Écran d’accueil avec quatre grandes tuiles" width="230"> <img src="StartPerTap-Pixel-Einstellungen.jpg" alt="Paramètres du lanceur" width="230"> <img src="StartPerTap-Pixel-Kacheln.jpg" alt="Gestion des tuiles et accessibilité" width="230">
 
-[À propos de StartPerTap 0.16](StartPerTap-Pixel-Info.jpg)
+[Capture historique de la version 0.16](StartPerTap-Pixel-Info.jpg)
 
 ## Fonctionnalités
 

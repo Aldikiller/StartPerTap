@@ -21,15 +21,7 @@ Installiere die APK auf Android 10 oder neuer. Öffne StartPerTap und richte dei
 - Sieh dir die Designs Pastell, Hoher Kontrast und Schwarzweiß in der Vorschau an oder verwende deine bisherigen Farben.
 - Speichere benannte Profile auf dem Gerät und exportiere oder lade sie als JSON-Sicherung. Lokale Mediendateien wählst du nach dem Gerätewechsel erneut aus.
 
-## Neu in 0.25
-
-- Wähle bis zu 2, 4 oder 6 Kacheln für die erste Seite und prüfe die Vorschau vor dem Speichern.
-- Der WLAN-Knopf meldet den Verbindungsstatus und fragt nach, bevor er die Android-WLAN-Einstellungen öffnet.
-- Die Navigationsleiste lässt sich in StartPerTap ausblenden und per Wisch vom unteren Rand kurz einblenden.
-
-## Neu in 0.24
-
-Startseite und Kacheln, System und Bedienungshilfen sowie Notfall starten zugeklappt. Jeder Bereich hat eine eigene Pastellfarbe und abgerundete Buttons.
+[Änderungsverlauf](CHANGELOG.de.md)
 
 ## Notfallinfos
 
@@ -47,7 +39,7 @@ Die Videos zeigen Entwürfe. Die Bilder unten sind echte App-Aufnahmen.
 
 <img src="StartPerTap-Pixel-Startseite.jpg" alt="Startseite mit vier großen Kacheln" width="230"> <img src="StartPerTap-Pixel-Einstellungen.jpg" alt="Launcher-Einstellungen" width="230"> <img src="StartPerTap-Pixel-Kacheln.jpg" alt="Kachelverwaltung und Bedienungshilfen" width="230">
 
-[Über StartPerTap 0.16](StartPerTap-Pixel-Info.jpg)
+[Historischer Screenshot aus 0.16](StartPerTap-Pixel-Info.jpg)
 
 ## Funktionen
 

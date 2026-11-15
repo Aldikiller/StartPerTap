@@ -21,15 +21,7 @@ Instala el APK en Android 10 o posterior. Abre StartPerTap y configura tus ficha
 - Previsualiza los temas pastel, alto contraste y blanco y negro, o conserva tus colores actuales.
 - Guarda perfiles con nombre y exporta o restaura una copia JSON. Vuelve a seleccionar los archivos multimedia locales tras cambiar de dispositivo.
 
-## Novedades de 0.25
-
-- Elige hasta 2, 4 o 6 mosaicos para la primera página y comprueba la vista previa antes de guardar.
-- El botón Wi-Fi indica el estado y pide confirmación antes de abrir los ajustes de Android.
-- Puedes ocultar la barra de navegación y mostrarla temporalmente deslizando desde abajo.
-
-## Novedades de 0.24
-
-Las secciones de inicio y mosaicos, sistema y accesibilidad y emergencias aparecen plegadas. Cada una tiene un color pastel distinto y botones redondeados.
+[Historial de cambios](CHANGELOG.es.md)
 
 ## Datos de emergencia
 
@@ -47,7 +39,7 @@ Los vídeos muestran bocetos. Las imágenes de abajo son capturas reales de la a
 
 <img src="StartPerTap-Pixel-Startseite.jpg" alt="Pantalla de inicio con cuatro fichas grandes" width="230"> <img src="StartPerTap-Pixel-Einstellungen.jpg" alt="Ajustes del lanzador" width="230"> <img src="StartPerTap-Pixel-Kacheln.jpg" alt="Gestión de fichas y accesibilidad" width="230">
 
-[Acerca de StartPerTap 0.16](StartPerTap-Pixel-Info.jpg)
+[Captura histórica de la versión 0.16](StartPerTap-Pixel-Info.jpg)
 
 ## Funciones
 
