@@ -125,4 +125,57 @@
     <string name="first_page_standard">Стандартний (до 16 плиток)</string>
     <string name="first_page_capacity">До %1$d плиток</string>
     <string name="first_page_preview">Попередній перегляд: %1$d із %2$d плиток на першій сторінці</string>
+    <string name="app_search">Пошук застосунків</string>
+    <string name="app_search_empty">Застосунків не знайдено</string>
+    <string name="tile_label_size">Розмір тексту плитки</string>
+    <string name="tile_label_size_auto">Автоматично</string>
+    <string name="header_settings">Верхня панель</string>
+    <string name="header_show_symbol">Показувати %1$s</string>
+    <string name="header_symbol_color">Колір для %1$s</string>
+    <string name="symbol_wifi">Wi-Fi</string>
+    <string name="symbol_quiet">Тихий режим</string>
+    <string name="symbol_lock">Замок</string>
+    <string name="symbol_default_color">Стандартний колір</string>
+    <string name="symbol_tile_setting">Символ (без дії)</string>
+    <string name="symbol_tile_none">Немає</string>
+    <string name="symbol_tile_description">%1$s, символ %2$s, лише для показу</string>
+    <string-array name="symbol_palette_names">
+        <item>Синій</item>
+        <item>Зелений</item>
+        <item>Червоний</item>
+        <item>Фіолетовий</item>
+        <item>Помаранчевий</item>
+        <item>Бірюзовий</item>
+        <item>Жовтий</item>
+        <item>Білий</item>
+    </string-array>
+    <string name="layout_profiles">Профілі та резервна копія</string>
+    <string name="layout_save_profile">Зберегти поточний макет як профіль</string>
+    <string name="layout_choose_profile">Відкрити збережений профіль</string>
+    <string name="layout_export">Зберегти резервну копію</string>
+    <string name="layout_export_profile">Експортувати збережений профіль</string>
+    <string name="layout_import">Відновити з резервної копії</string>
+    <string name="layout_profile_name">Назва профілю</string>
+    <string name="layout_replace">Замінити збережений профіль?</string>
+    <string name="layout_profile_limit">Можна зберегти до %1$d профілів.</string>
+    <string name="layout_saved">Макет збережено.</string>
+    <string name="layout_error">Не вдалося прочитати або зберегти макет.</string>
+    <string name="layout_no_profiles">Збережених профілів ще немає.</string>
+    <string name="layout_replace_current">Поточні плитки й макет першої сторінки буде замінено.</string>
+    <string name="layout_reselect_files">Виберіть локальні файли повторно для такої кількості плиток: %1$d.</string>
+    <string name="layout_missing_app">%1$s (застосунок недоступний)</string>
+    <string name="layout_apply">Застосувати макет</string>
+    <string name="layout_delete">Видалити профіль</string>
+    <string name="device_settings">Налаштування пристрою</string>
+    <string name="header_order">Порядок і видимість символів</string>
+    <string name="launcher_settings_access">Меню StartPerTap</string>
+    <string name="header_move_up">Перемістити %1$s вгору</string>
+    <string name="header_move_down">Перемістити %1$s вниз</string>
+    <string name="design_themes">Теми оформлення</string>
+    <string name="theme_current">Поточне оформлення</string>
+    <string name="theme_pastel">Пастельна</string>
+    <string name="theme_contrast">Високий контраст</string>
+    <string name="theme_mono">Чорно-біла</string>
+    <string name="theme_preview">Попередній перегляд кольорів плиток</string>
+    <string name="theme_custom_note">Теми визначають кольори плиток і верхньої панелі. Виберіть поточне оформлення, щоб повернути власні кольори.</string>
 </resources>
