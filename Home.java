@@ -9,6 +9,10 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.*;
 import android.graphics.drawable.*;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.*;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
@@ -84,12 +88,59 @@ public final class Home extends Activity {
         showLaunchScreen();
     }
 
+    private ImageButton wifiControl;
+    private ConnectivityManager connectivity;
+    private final ConnectivityManager.NetworkCallback wifiChanges = new ConnectivityManager.NetworkCallback() {
+        @Override public void onAvailable(Network network) {
+            updateWifiStatus();
+        }
+
+        @Override public void onLost(Network network) {
+            updateWifiStatus();
+        }
+    };
+
+    @Override protected void onStart() {
+        super.onStart();
+        connectivity = getSystemService(ConnectivityManager.class);
+        connectivity.registerNetworkCallback(new NetworkRequest.Builder()
+            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            .build(), wifiChanges, new Handler(Looper.getMainLooper()));
+    }
+
     @Override protected void onResume() {
         super.onResume();
         if (!admin && active == null && !emergencyStartVisible) showHome();
     }
 
+    @Override public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) applyNavigationBarPreference();
+    }
+
+    private void applyNavigationBarPreference() {
+        boolean hide = prefs.getBoolean("hide_navigation_bar", false);
+        View decor = getWindow().getDecorView();
+        if (Build.VERSION.SDK_INT >= 30) {
+            WindowInsetsController controller = decor.getWindowInsetsController();
+            if (controller == null) return;
+            if (hide) {
+                controller.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+                controller.hide(WindowInsets.Type.navigationBars());
+            } else {
+                controller.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_DEFAULT);
+                controller.show(WindowInsets.Type.navigationBars());
+            }
+        } else {
+            int flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+            int current = decor.getSystemUiVisibility();
+            decor.setSystemUiVisibility(hide ? current | flags : current & ~flags);
+        }
+        if (root != null) root.requestApplyInsets();
+    }
+
     @Override protected void onStop() {
+        connectivity.unregisterNetworkCallback(wifiChanges);
         super.onStop();
         admin = false;
         if (active != null) active.dismiss();
@@ -113,7 +164,7 @@ public final class Home extends Activity {
     @Override public boolean dispatchTouchEvent(MotionEvent event) {
         int action = event.getActionMasked();
         if (action == MotionEvent.ACTION_DOWN) {
-            trackingSwipe = !admin && active == null && tiles.length() > PAGE_SIZE;
+            trackingSwipe = !admin && active == null && pageCount() > 1;
             swipeX = event.getX();
             swipeY = event.getY();
         } else if (action == MotionEvent.ACTION_POINTER_DOWN || action == MotionEvent.ACTION_CANCEL) {
@@ -135,7 +186,20 @@ public final class Home extends Activity {
     }
 
     private int pageCount() {
-        return (tiles.length() + PAGE_SIZE - 1) / PAGE_SIZE;
+        int remaining = Math.max(0, tiles.length() - firstPageSize());
+        return 1 + (remaining + PAGE_SIZE - 1) / PAGE_SIZE;
+    }
+
+    private int firstPageSize() {
+        return prefs.getInt("first_page_size", PAGE_SIZE);
+    }
+
+    private int pageStart(int page) {
+        return page == 0 ? 0 : firstPageSize() + (page - 1) * PAGE_SIZE;
+    }
+
+    private int pageForTile(int index) {
+        return index < firstPageSize() ? 0 : 1 + (index - firstPageSize()) / PAGE_SIZE;
     }
 
     private void turnPage(int direction) {
@@ -181,8 +245,11 @@ public final class Home extends Activity {
         root.setPadding(dp(12), dp(8), dp(12), dp(8));
         if (Build.VERSION.SDK_INT >= 30) {
             root.setOnApplyWindowInsetsListener((view, insets) -> {
-                android.graphics.Insets bars = insets.getInsetsIgnoringVisibility(
-                    WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout());
+                int types = WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout();
+                if (prefs.getBoolean("hide_navigation_bar", false)) {
+                    types &= ~WindowInsets.Type.navigationBars();
+                }
+                android.graphics.Insets bars = insets.getInsetsIgnoringVisibility(types);
                 view.setPadding(bars.left + dp(12), bars.top + dp(8),
                     bars.right + dp(12), bars.bottom + dp(8));
                 return insets;
@@ -358,6 +425,11 @@ public final class Home extends Activity {
         page();
         LinearLayout header = new LinearLayout(this);
         header.setGravity(Gravity.END);
+        wifiControl = iconButton(false, false, "", this::confirmWifiSettings);
+        wifiControl.setImageResource(R.drawable.wifi_status);
+        wifiControl.setColorFilter(foreground());
+        updateWifiStatus();
+        header.addView(wifiControl);
         int filter = notifications.getCurrentInterruptionFilter();
         boolean quiet = filter != NotificationManager.INTERRUPTION_FILTER_ALL
             && filter != NotificationManager.INTERRUPTION_FILTER_UNKNOWN;
@@ -371,10 +443,30 @@ public final class Home extends Activity {
         grid.setGravity(Gravity.CENTER_VERTICAL);
         scroll.addView(grid);
         root.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
+        int offset = pageStart(homePage);
+        int capacity = homePage == 0 ? firstPageSize() : PAGE_SIZE;
+        populateTileGrid(grid, offset, Math.min(capacity, tiles.length() - offset), true);
+        if (pageCount() > 1) {
+            LinearLayout navigation = new LinearLayout(this);
+            navigation.setGravity(Gravity.CENTER);
+            Button previous = button("‹", () -> turnPage(-1));
+            previous.setContentDescription(getString(R.string.ui_vorherige_kachelseite_3));
+            previous.setEnabled(homePage > 0);
+            Button next = button("›", () -> turnPage(1));
+            next.setContentDescription(getString(R.string.ui_nachste_kachelseite_4));
+            next.setEnabled(homePage + 1 < pageCount());
+            TextView position = text(getString(R.string.page, homePage + 1, pageCount()), 18);
+            position.setGravity(Gravity.CENTER);
+            navigation.addView(previous);
+            navigation.addView(position, new LinearLayout.LayoutParams(0, -2, 1));
+            navigation.addView(next);
+            root.addView(navigation);
+        }
+    }
+
+    private void populateTileGrid(LinearLayout grid, int offset, int count, boolean interactive) {
         float scale = getResources().getConfiguration().fontScale;
         int width = getResources().getConfiguration().screenWidthDp;
-        int offset = homePage * PAGE_SIZE;
-        int count = Math.min(PAGE_SIZE, tiles.length() - offset);
         int columns = count <= 2 ? 1 : count <= 6 ? 2 : count <= 9 ? 3 : 4;
         if (width < 480) columns = Math.min(columns, 2);
         else if (width < 600 || scale > 1.25f) columns = Math.min(columns, 3);
@@ -392,28 +484,47 @@ public final class Home extends Activity {
                     continue;
                 }
                 JSONObject tile = tiles.optJSONObject(offset + index);
-                row.addView(tileView(tile, columns), size);
+                row.addView(tileView(tile, columns, interactive), size);
             }
             LinearLayout.LayoutParams size = new LinearLayout.LayoutParams(-1,
                 dp((int) (tileHeight * Math.max(1f, scale / 1.25f))), 1);
             grid.addView(row, size);
         }
-        if (pageCount() > 1) {
-            LinearLayout navigation = new LinearLayout(this);
-            navigation.setGravity(Gravity.CENTER);
-            Button previous = button("‹", () -> turnPage(-1));
-            previous.setContentDescription(getString(R.string.ui_vorherige_kachelseite_3));
-            previous.setEnabled(homePage > 0);
-            Button next = button("›", () -> turnPage(1));
-            next.setContentDescription(getString(R.string.ui_nachste_kachelseite_4));
-            next.setEnabled(homePage + 1 < pageCount());
-            TextView position = text(getString(R.string.page, homePage + 1, pageCount()), 18);
-            position.setGravity(Gravity.CENTER);
-            navigation.addView(previous);
-            navigation.addView(position, new LinearLayout.LayoutParams(0, -2, 1));
-            navigation.addView(next);
-            root.addView(navigation);
+    }
+
+    private int wifiStatus() {
+        ConnectivityManager manager = getSystemService(ConnectivityManager.class);
+        for (Network network : manager.getAllNetworks()) {
+            NetworkCapabilities capabilities = manager.getNetworkCapabilities(network);
+            if (capabilities != null && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+                    && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)) {
+                return R.string.wifi_connected;
+            }
         }
+        return R.string.wifi_disconnected;
+    }
+
+    private void updateWifiStatus() {
+        if (wifiControl == null) return;
+        int status = wifiStatus();
+        String label = getString(status);
+        wifiControl.setContentDescription(label);
+        wifiControl.setTooltipText(label);
+        wifiControl.setAlpha(status == R.string.wifi_connected ? 1f : 0.65f);
+    }
+
+    private void confirmWifiSettings() {
+        dialog(new AlertDialog.Builder(this)
+            .setTitle(wifiStatus())
+            .setMessage(R.string.wifi_confirm)
+            .setNegativeButton(android.R.string.cancel, null)
+            .setPositiveButton(R.string.wifi_open, (dialog, which) -> {
+                try {
+                    startActivity(new Intent(Settings.Panel.ACTION_WIFI));
+                } catch (ActivityNotFoundException e) {
+                    open(new Intent(Settings.ACTION_WIFI_SETTINGS), getString(R.string.wifi_unavailable));
+                }
+            }).create());
     }
 
     private ImageButton iconButton(boolean lock, boolean quiet, String label, Runnable action) {
@@ -473,7 +584,7 @@ public final class Home extends Activity {
         @Override public int getOpacity() { return PixelFormat.TRANSLUCENT; }
     }
 
-    private View tileView(JSONObject tile, int columns) {
+    private View tileView(JSONObject tile, int columns, boolean interactive) {
         int color = tile.optInt("color", BLUE);
         int ink = Color.luminance(color) >= 0.179f ? BLACK : WHITE;
         String title = tile.optString("label");
@@ -502,9 +613,11 @@ public final class Home extends Activity {
         label.setTextColor(ink);
         label.setTypeface(null, Typeface.BOLD);
         face.addView(label);
-        face.setContentDescription(title);
-        face.setFocusable(true);
-        face.setOnClickListener(v -> launchTile(tile));
+        if (interactive) {
+            face.setContentDescription(title);
+            face.setFocusable(true);
+            face.setOnClickListener(v -> launchTile(tile));
+        }
         return face;
     }
 
@@ -916,6 +1029,7 @@ public final class Home extends Activity {
         root.addView(scroll);
         LinearLayout home = settingsGroup(controls, R.string.settings_home, 0xffcbdcf5);
         home.addView(button(getString(R.string.count, tiles.length(), MAX_TILES), this::showTileSettings));
+        home.addView(button(getString(R.string.first_page_layout), this::chooseFirstPageLayout));
         home.addView(button(getString(R.string.language), this::chooseLanguage));
         home.addView(button(getString(R.string.appearance), this::showAppearance));
         LinearLayout system = settingsGroup(controls, R.string.settings_system, 0xffcce9da);
@@ -924,6 +1038,18 @@ public final class Home extends Activity {
             system.addView(button(getString(R.string.ui_startpertap_als_standard_wahlen_46), this::requestHome));
         }
         system.addView(button(getString(R.string.ui_anderen_launcher_wahlen_47), this::openHomeSettings));
+        Switch hideNavigationBar = new Switch(this);
+        hideNavigationBar.setText(R.string.hide_navigation_bar);
+        hideNavigationBar.setTextColor(foreground());
+        hideNavigationBar.setTextSize(19);
+        hideNavigationBar.setMinHeight(dp(56));
+        hideNavigationBar.setChecked(prefs.getBoolean("hide_navigation_bar", false));
+        hideNavigationBar.setOnCheckedChangeListener((view, enabled) -> {
+            prefs.edit().putBoolean("hide_navigation_bar", enabled).apply();
+            applyNavigationBarPreference();
+        });
+        system.addView(hideNavigationBar);
+        system.addView(text(getString(R.string.reveal_navigation_bar), 16));
         LinearLayout emergency = settingsGroup(controls, R.string.emergency, 0xfff4cbd2);
         Switch emergencyAtStart = new Switch(this);
         emergencyAtStart.setText(R.string.emergency_at_start);
@@ -1011,6 +1137,42 @@ public final class Home extends Activity {
         }
     }
 
+    private void chooseFirstPageLayout() {
+        LinearLayout content = column();
+        content.setPadding(dp(20), dp(8), dp(20), dp(8));
+        RadioGroup options = new RadioGroup(this);
+        for (int capacity : new int[]{2, 4, 6, PAGE_SIZE}) {
+            RadioButton option = new RadioButton(this);
+            option.setId(capacity);
+            option.setText(capacity == PAGE_SIZE ? getString(R.string.first_page_standard)
+                : getString(R.string.first_page_capacity, capacity));
+            option.setTextSize(19);
+            option.setMinHeight(dp(48));
+            options.addView(option);
+        }
+        content.addView(options);
+        TextView summary = text("", 18);
+        content.addView(summary);
+        LinearLayout preview = column();
+        content.addView(preview);
+        options.setOnCheckedChangeListener((group, capacity) -> {
+            int visible = Math.min(capacity, tiles.length());
+            summary.setText(getString(R.string.first_page_preview, visible, tiles.length()));
+            preview.removeAllViews();
+            populateTileGrid(preview, 0, visible, false);
+        });
+        options.check(firstPageSize());
+        ScrollView scroll = new ScrollView(this);
+        scroll.addView(content);
+        dialog(new AlertDialog.Builder(this).setTitle(R.string.first_page_layout)
+            .setView(scroll)
+            .setNegativeButton(R.string.ui_abbrechen_30, null)
+            .setPositiveButton(R.string.ui_speichern_93, (dialog, which) -> {
+                prefs.edit().putInt("first_page_size", options.getCheckedRadioButtonId()).apply();
+                homePage = 0;
+            }).create());
+    }
+
     private void showTileSettings() {
         sorting = false;
         tileSettingsVisible = true;
@@ -1088,7 +1250,7 @@ public final class Home extends Activity {
             Button tab = button(getString(R.string.tab, p + 1), () -> showSort(destination));
             tab.setEnabled(p != sortPage);
             tabs.addView(tab, new LinearLayout.LayoutParams(0, -2, 1));
-            int pageStart = p * PAGE_SIZE;
+            int pageStart = pageStart(p);
             if (p != sortPage) tab.setOnDragListener((view, event) ->
                 handleSortDrop(event, pageStart));
         }
@@ -1098,8 +1260,8 @@ public final class Home extends Activity {
         LinearLayout items = column();
         scroll.addView(items);
         root.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
-        int end = Math.min(tiles.length(), (sortPage + 1) * PAGE_SIZE);
-        for (int i = sortPage * PAGE_SIZE; i < end; i++) {
+        int end = Math.min(tiles.length(), pageStart(sortPage + 1));
+        for (int i = pageStart(sortPage); i < end; i++) {
             int index = i;
             String label = tiles.optJSONObject(i).optString("label");
             Button item = button((i + 1) + ". " + label, () -> chooseSortPosition(index, label));
@@ -1121,7 +1283,8 @@ public final class Home extends Activity {
     private void chooseSortPosition(int index, String label) {
         String[] positions = new String[tiles.length()];
         for (int i = 0; i < positions.length; i++) {
-            positions[i] = getString(R.string.position, i / PAGE_SIZE + 1, i % PAGE_SIZE + 1);
+            int page = pageForTile(i);
+            positions[i] = getString(R.string.position, page + 1, i - pageStart(page) + 1);
         }
         dialog(new AlertDialog.Builder(this).setTitle(getString(R.string.move, label))
             .setItems(positions, (d, destination) -> reorderTile(index, destination))
@@ -1138,7 +1301,7 @@ public final class Home extends Activity {
             putTile(to, moved);
             prefs.edit().putString("tiles", tiles.toString()).apply();
         }
-        showSort(to / PAGE_SIZE);
+        showSort(pageForTile(to));
     }
 
     private void requestHome() {
