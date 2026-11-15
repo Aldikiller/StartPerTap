@@ -4,14 +4,22 @@
 
 Kostenloser Android-Launcher mit großen Kacheln für Menschen mit Sehbeeinträchtigung.
 
-[![StartPerTap](StartPerTap-GitHub-Banner-de.svg)](https://github.com/Aldikiller/StartPerTap/releases/tag/v0.25)
+[![StartPerTap](StartPerTap-GitHub-Banner-de.svg)](https://github.com/Aldikiller/StartPerTap/releases/tag/v0.26)
 
 ## Download
 
-[StartPerTap 0.25 (APK)](https://github.com/Aldikiller/StartPerTap/releases/download/v0.25/StartPerTap-0.25.apk)
+[StartPerTap 0.26 (APK)](https://github.com/Aldikiller/StartPerTap/releases/download/v0.26/StartPerTap-0.26.apk)
 
 Installiere die APK auf Android 10 oder neuer. Öffne StartPerTap und richte deine Kacheln unter **Schloss → PIN** ein. Wähle in den Einstellungen **StartPerTap als Standard wählen**, um die Android-Startseite zu ersetzen.
 
+
+## Neu in 0.26
+
+- Öffne über das A-Symbol die alphabetische App-Liste mit Suche.
+- Stelle die Schriftgröße pro Kachel ein und füge Anzeigesymbole ohne Aktion hinzu.
+- Passe Farbe, Reihenfolge und Sichtbarkeit der oberen Symbole an. Das Zahnrad öffnet die Android-Geräteeinstellungen.
+- Sieh dir die Designs Pastell, Hoher Kontrast und Schwarzweiß in der Vorschau an oder verwende deine bisherigen Farben.
+- Speichere benannte Profile auf dem Gerät und exportiere oder lade sie als JSON-Sicherung. Lokale Mediendateien wählst du nach dem Gerätewechsel erneut aus.
 
 ## Neu in 0.25
 

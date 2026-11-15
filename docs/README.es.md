@@ -4,14 +4,22 @@
 
 Lanzador gratuito para Android con fichas grandes para personas con baja visión.
 
-[![StartPerTap](StartPerTap-GitHub-Banner-es.svg)](https://github.com/Aldikiller/StartPerTap/releases/tag/v0.25)
+[![StartPerTap](StartPerTap-GitHub-Banner-es.svg)](https://github.com/Aldikiller/StartPerTap/releases/tag/v0.26)
 
 ## Descarga
 
-[StartPerTap 0.25 (APK)](https://github.com/Aldikiller/StartPerTap/releases/download/v0.25/StartPerTap-0.25.apk)
+[StartPerTap 0.26 (APK)](https://github.com/Aldikiller/StartPerTap/releases/download/v0.26/StartPerTap-0.26.apk)
 
 Instala el APK en Android 10 o posterior. Abre StartPerTap y configura tus fichas en **Candado → PIN**. Para cambiar la pantalla de inicio, elige **Elegir StartPerTap por defecto** en los ajustes.
 
+
+## Novedades de 0.26
+
+- Abre la lista alfabética de aplicaciones con búsqueda desde el icono A.
+- Ajusta el tamaño del texto de cada mosaico y añade símbolos visuales sin acción.
+- Configura el color, el orden y la visibilidad de los símbolos superiores. El engranaje abre los ajustes de Android.
+- Previsualiza los temas pastel, alto contraste y blanco y negro, o conserva tus colores actuales.
+- Guarda perfiles con nombre y exporta o restaura una copia JSON. Vuelve a seleccionar los archivos multimedia locales tras cambiar de dispositivo.
 
 ## Novedades de 0.25
 

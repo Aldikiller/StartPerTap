@@ -4,14 +4,22 @@
 
 Lanceur Android gratuit avec de grandes tuiles pour les personnes malvoyantes.
 
-[![StartPerTap](StartPerTap-GitHub-Banner-fr.svg)](https://github.com/Aldikiller/StartPerTap/releases/tag/v0.25)
+[![StartPerTap](StartPerTap-GitHub-Banner-fr.svg)](https://github.com/Aldikiller/StartPerTap/releases/tag/v0.26)
 
 ## Téléchargement
 
-[StartPerTap 0.25 (APK)](https://github.com/Aldikiller/StartPerTap/releases/download/v0.25/StartPerTap-0.25.apk)
+[StartPerTap 0.26 (APK)](https://github.com/Aldikiller/StartPerTap/releases/download/v0.26/StartPerTap-0.26.apk)
 
 Installez l’APK sur Android 10 ou une version ultérieure. Ouvrez StartPerTap et configurez vos tuiles via **Cadenas → Code PIN**. Dans les paramètres, choisissez **Choisir StartPerTap par défaut** pour changer d’écran d’accueil.
 
+
+## Nouveautés de la version 0.26
+
+- Ouvrez la liste alphabétique des applications avec recherche depuis l’icône A.
+- Réglez la taille du texte de chaque tuile et ajoutez des symboles visuels sans action.
+- Réglez la couleur, l’ordre et la visibilité des symboles du haut. La roue dentée ouvre les paramètres Android.
+- Prévisualisez les thèmes pastel, contraste élevé et noir et blanc, ou conservez vos couleurs actuelles.
+- Enregistrez des profils nommés et exportez ou restaurez une sauvegarde JSON. Sélectionnez à nouveau les fichiers multimédias locaux après un changement d’appareil.
 
 ## Nouveautés de la version 0.25
 
