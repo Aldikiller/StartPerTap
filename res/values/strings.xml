@@ -125,4 +125,58 @@
     <string name="first_page_standard">Standard (up to 16 tiles)</string>
     <string name="first_page_capacity">Up to %1$d tiles</string>
     <string name="first_page_preview">Preview: %1$d of %2$d tiles on the first page</string>
+    <string name="app_search">Search apps</string>
+    <string name="app_search_empty">No apps found</string>
+    <string name="tile_label_size">Tile label size</string>
+    <string name="tile_label_size_auto">Automatic</string>
+    <string name="tile_label_size_value" translatable="false">%1$d sp</string>
+    <string name="header_settings">Top bar</string>
+    <string name="header_show_symbol">Show %1$s</string>
+    <string name="header_symbol_color">Color for %1$s</string>
+    <string name="symbol_wifi">Wi-Fi</string>
+    <string name="symbol_quiet">Quiet mode</string>
+    <string name="symbol_lock">Lock</string>
+    <string name="symbol_default_color">Default color</string>
+    <string name="symbol_tile_setting">Display symbol (no action)</string>
+    <string name="symbol_tile_none">None</string>
+    <string name="symbol_tile_description">%1$s, %2$s symbol, display only</string>
+    <string-array name="symbol_palette_names">
+        <item>Blue</item>
+        <item>Green</item>
+        <item>Red</item>
+        <item>Purple</item>
+        <item>Orange</item>
+        <item>Teal</item>
+        <item>Yellow</item>
+        <item>White</item>
+    </string-array>
+    <string name="layout_profiles">Profiles and backup</string>
+    <string name="layout_save_profile">Save current layout as a profile</string>
+    <string name="layout_choose_profile">Open a saved profile</string>
+    <string name="layout_export">Save backup file</string>
+    <string name="layout_export_profile">Export saved profile</string>
+    <string name="layout_import">Restore from backup file</string>
+    <string name="layout_profile_name">Profile name</string>
+    <string name="layout_replace">Replace saved profile?</string>
+    <string name="layout_profile_limit">You can save up to %1$d profiles.</string>
+    <string name="layout_saved">Layout saved.</string>
+    <string name="layout_error">Unable to read or save this layout.</string>
+    <string name="layout_no_profiles">No saved profiles yet.</string>
+    <string name="layout_replace_current">This replaces the current tiles and first-page layout.</string>
+    <string name="layout_reselect_files">Select local files again for %1$d tile(s).</string>
+    <string name="layout_missing_app">%1$s (app unavailable)</string>
+    <string name="layout_apply">Apply layout</string>
+    <string name="layout_delete">Delete profile</string>
+    <string name="device_settings">Device settings</string>
+    <string name="header_order">Arrange and show icons</string>
+    <string name="launcher_settings_access">StartPerTap menu</string>
+    <string name="header_move_up">Move %1$s up</string>
+    <string name="header_move_down">Move %1$s down</string>
+    <string name="design_themes">Design themes</string>
+    <string name="theme_current">Existing design</string>
+    <string name="theme_pastel">Pastel</string>
+    <string name="theme_contrast">High contrast</string>
+    <string name="theme_mono">Black and white</string>
+    <string name="theme_preview">Tile color preview</string>
+    <string name="theme_custom_note">Presets set the colors of the tiles and top bar. Choose Existing design to show your custom colors.</string>
 </resources>
