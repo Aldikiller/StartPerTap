@@ -114,4 +114,15 @@
     <string name="media_choose">Choisir un fichier audio, vidéo ou PDF</string>
     <string name="media_file">Fichier</string>
     <string name="media_unavailable">Fichier indisponible ou aucune application compatible installée.</string>
+    <string name="wifi_connected">Wi-Fi connecté</string>
+    <string name="wifi_disconnected">Wi-Fi non connecté</string>
+    <string name="wifi_confirm">Ouvrir les réglages Wi-Fi pour activer ou désactiver le Wi-Fi ?</string>
+    <string name="wifi_open">Ouvrir le Wi-Fi</string>
+    <string name="wifi_unavailable">Les réglages Wi-Fi sont indisponibles.</string>
+    <string name="hide_navigation_bar">Masquer la barre de navigation</string>
+    <string name="reveal_navigation_bar">Balayez vers le haut depuis le bord inférieur pour afficher brièvement la barre.</string>
+    <string name="first_page_layout">Disposition de la première page</string>
+    <string name="first_page_standard">Standard (jusqu’à 16 tuiles)</string>
+    <string name="first_page_capacity">Jusqu’à %1$d tuiles</string>
+    <string name="first_page_preview">Aperçu : %1$d tuiles sur %2$d sur la première page</string>
 </resources>
