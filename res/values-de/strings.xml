@@ -125,4 +125,57 @@
     <string name="first_page_standard">Standard (bis zu 16 Kacheln)</string>
     <string name="first_page_capacity">Bis zu %1$d Kacheln</string>
     <string name="first_page_preview">Vorschau: %1$d von %2$d Kacheln auf der ersten Seite</string>
+    <string name="app_search">Apps suchen</string>
+    <string name="app_search_empty">Keine Apps gefunden</string>
+    <string name="tile_label_size">Schriftgröße der Kachel</string>
+    <string name="tile_label_size_auto">Automatisch</string>
+    <string name="header_settings">Obere Leiste</string>
+    <string name="header_show_symbol">%1$s anzeigen</string>
+    <string name="header_symbol_color">Farbe für %1$s</string>
+    <string name="symbol_wifi">WLAN</string>
+    <string name="symbol_quiet">Ruhemodus</string>
+    <string name="symbol_lock">Schloss</string>
+    <string name="symbol_default_color">Standardfarbe</string>
+    <string name="symbol_tile_setting">Anzeigesymbol (ohne Aktion)</string>
+    <string name="symbol_tile_none">Keins</string>
+    <string name="symbol_tile_description">%1$s, Symbol %2$s, nur Anzeige</string>
+    <string-array name="symbol_palette_names">
+        <item>Blau</item>
+        <item>Grün</item>
+        <item>Rot</item>
+        <item>Violett</item>
+        <item>Orange</item>
+        <item>Türkis</item>
+        <item>Gelb</item>
+        <item>Weiß</item>
+    </string-array>
+    <string name="layout_profiles">Profile und Sicherung</string>
+    <string name="layout_save_profile">Aktuelles Layout als Profil speichern</string>
+    <string name="layout_choose_profile">Gespeichertes Profil öffnen</string>
+    <string name="layout_export">Sicherungsdatei speichern</string>
+    <string name="layout_export_profile">Gespeichertes Profil exportieren</string>
+    <string name="layout_import">Aus Sicherungsdatei wiederherstellen</string>
+    <string name="layout_profile_name">Profilname</string>
+    <string name="layout_replace">Gespeichertes Profil ersetzen?</string>
+    <string name="layout_profile_limit">Du kannst bis zu %1$d Profile speichern.</string>
+    <string name="layout_saved">Layout gespeichert.</string>
+    <string name="layout_error">Das Layout konnte nicht gelesen oder gespeichert werden.</string>
+    <string name="layout_no_profiles">Es sind noch keine Profile gespeichert.</string>
+    <string name="layout_replace_current">Die aktuellen Kacheln und das Layout der ersten Seite werden ersetzt.</string>
+    <string name="layout_reselect_files">Wähle für %1$d Kachel(n) die lokalen Dateien erneut aus.</string>
+    <string name="layout_missing_app">%1$s (App fehlt)</string>
+    <string name="layout_apply">Layout übernehmen</string>
+    <string name="layout_delete">Profil löschen</string>
+    <string name="device_settings">Geräteeinstellungen</string>
+    <string name="header_order">Symbole anordnen und anzeigen</string>
+    <string name="launcher_settings_access">StartPerTap-Menü</string>
+    <string name="header_move_up">%1$s nach oben verschieben</string>
+    <string name="header_move_down">%1$s nach unten verschieben</string>
+    <string name="design_themes">Designs</string>
+    <string name="theme_current">Bestehendes Design</string>
+    <string name="theme_pastel">Pastell</string>
+    <string name="theme_contrast">Hoher Kontrast</string>
+    <string name="theme_mono">Schwarzweiß</string>
+    <string name="theme_preview">Vorschau der Kachelfarben</string>
+    <string name="theme_custom_note">Die Vorlagen bestimmen die Farben der Kacheln und der oberen Leiste. Mit „Bestehendes Design“ werden deine eigenen Farben wieder angezeigt.</string>
 </resources>
